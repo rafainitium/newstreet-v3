@@ -528,10 +528,10 @@
   .press-card:hover .press-card__media img { transform: scale(1.05); }
   .press-card__body { padding: 24px 26px 28px; }
   .press-card__meta {
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
+    font-size: 11px;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    opacity: 0.65;
+    opacity: 0.6;
     margin-bottom: 14px;
     display: flex;
     gap: 14px;
@@ -543,26 +543,30 @@
     opacity: 0.6;
   }
   .press-card__headline {
+    font-family: 'Murecho', sans-serif;
     font-size: clamp(18px, 1.5vw, 22px);
-    font-weight: 700;
-    letter-spacing: var(--ls-headline);
-    line-height: 1.12;
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 1.05;
     margin-bottom: 14px;
   }
   .press-card__excerpt {
     font-size: 14px;
     line-height: 1.45;
-    letter-spacing: var(--ls-small);
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
     opacity: 0.78;
     margin-bottom: 18px;
   }
   .press-card__cta {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
     border-bottom: 1px solid currentColor;
     padding-bottom: 3px;
     display: inline-block;
+    opacity: 0.7;
   }
 
   /* ============================================================
