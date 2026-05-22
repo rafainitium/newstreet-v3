@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newstreet — The Standard of Living</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Murecho:wght@100..900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  /* ============================================================
+     RESET / VARS
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  :root {
+    --bg: #efece6;
+    --ink: #0e0e0e;
+    --ink-soft: #4a4a4a;
+    --line: rgba(0,0,0,0.12);
+    --dark: #161616;
+    --ls-display: -0.075em;
+    --ls-headline: -0.06em;
+    --ls-body: -0.038em;
+    --ls-small: -0.02em;
+    --ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body.is-loading { overflow: hidden; }
+
+  img, video { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  /* ============================================================
+     LOADER (entrance sequence)
+     ============================================================ */
+  .loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.7s var(--ease), visibility 0.7s var(--ease);
+  }
+  .loader.is-done {
+    opacity: 0;
+    visibility: hidden;
+  }
+  .loader__title {
+    color: var(--ink);
+    font-weight: 800;
+    font-size: clamp(36px, 6.5vw, 96px);
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .loader__title .line { display: block; }
+  .loader__title .street {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: top;
+    max-width: 0;
+    opacity: 0;
+    font-weight: 200;
+    transition: max-width 0.78s var(--ease),
+                opacity   0.55s ease 0.12s;
+  }
+  .loader.is-extending .loader__title .street {
+    max-width: 10em;
+    opacity: 1;
+  }
+
+  /* ============================================================
+     NAV — clean layout, scroll-triggered separator bar
+     ============================================================ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    color: #fff;
+    opacity: 0;
+    transition: padding 0.5s var(--ease),
+                opacity 0.7s ease 0.3s;
+  }
+  body.is-loaded .nav { opacity: 1; }
+
+  /* the dark bar that slides in on scroll */
+  .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 18, 18, 0.78);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    transform: translateY(-100%);
+    transition: transform 0.6s var(--ease);
+    z-index: -1;
+  }
+  /* a hairline separator that expands from center on scroll */
+  .nav::after {
+    content: '';
+    position: absolute;
+    left: 50%; right: 50%;
+    bottom: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.18);
+    transition: left 0.7s var(--ease) 0.1s,
+                right 0.7s var(--ease) 0.1s;
+  }
+  .nav.is-scrolled::before { transform: translateY(0); }
+  .nav.is-scrolled::after { left: 0; right: 0; }
+  .nav.is-scrolled { padding: 16px 32px; }
+
+  .nav__brand {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: var(--ls-display);
+    line-height: 1;
+    z-index: 1;
+  }
+  .nav__brand .street { font-weight: 200; }
+
+  .nav__links {
+    display: flex;
+    gap: 30px;
+    z-index: 1;
+  }
+  .nav__link {
+    position: relative;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 0;
+  }
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link:hover::after { transform: scaleX(1); }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 620px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease 0.1s;
+  }
+  body.is-loaded .hero__video { opacity: 1; }
+  /* soft dark mute over the video for readability */
+  .hero__mute {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.28);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s ease 0.1s;
+  }
+  body.is-loaded .hero__mute { opacity: 1; }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 25%, rgba(0,0,0,0) 70%, rgba(0,0,0,0.4) 100%);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s ease 0.1s;
+  }
+  body.is-loaded .hero::after { opacity: 1; }
+
+  .hero__title {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    text-align: center;
+    z-index: 2;
+    font-weight: 800;
+    font-size: clamp(36px, 6.5vw, 96px);
+    line-height: 0.95;
+    letter-spacing: var(--ls-display);
+    padding: 0 20px;
+    gap: 2px;
+  }
+  .hero__title .street { font-weight: 200; }
+
+  .hero__scroll {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    z-index: 3;
+    text-transform: uppercase;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    opacity: 0;
+    transition: opacity 0.7s ease 0.5s;
+  }
+  body.is-loaded .hero__scroll { opacity: 0.85; }
+  .hero__scroll::after {
+    content: '';
+    width: 1px;
+    height: 38px;
+    background: rgba(255,255,255,0.5);
+    animation: scrollLine 2.6s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  @keyframes scrollLine {
+    0%   { transform: scaleY(0); transform-origin: top center; }
+    50%  { transform: scaleY(1); transform-origin: top center; }
+    51%  { transform: scaleY(1); transform-origin: bottom center; }
+    100% { transform: scaleY(0); transform-origin: bottom center; }
+  }
+
+  /* ============================================================
+     INTRO
+     ============================================================ */
+  .intro {
+    padding: 140px 36px 120px;
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .intro__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.96;
+  }
+  .intro__body {
+    font-size: clamp(13px, 1.25vw,30px);
+    line-height: 1.45;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    padding-bottom: 6px;
+  }
+
+  /* ============================================================
+     PROJECTS
+     ============================================================ */
+  .projects {
+    padding: 0 36px 100px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .projects__grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(3, clamp(210px, 25vw, 340px));
+    gap: 14px;
+  }
+  .project {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: #ddd;
+  }
+  .project__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 1.1s var(--ease-out),
+                filter   1.1s var(--ease-out);
+  }
+  .project:hover .project__img { transform: scale(1.045); filter: brightness(0.85); }
+  .project::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 50%);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .project__label {
+    position: absolute;
+    left: 22px;
+    bottom: 18px;
+    color: #fff;
+    z-index: 2;
+    transition: transform 0.6s var(--ease-out);
+  }
+  .project:hover .project__label { transform: translateY(-6px); }
+  .project__label-title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(20px, 2vw, 28px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 1;
+  }
+  .project__label-city {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 5px;
+    letter-spacing: var(--ls-small);
+  }
+  .project__arrow {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+    color: #fff;
+    font-size: 16px;
+    width: 38px; height: 38px;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-6px, 6px) scale(0.9);
+    opacity: 0;
+    transition: all 0.5s var(--ease-out);
+  }
+  .project:hover .project__arrow { opacity: 1; transform: translate(0,0) scale(1); }
+
+  .project--arris  { grid-column: 1 / 9;  grid-row: 1 / 3; }
+  .project--clark  { grid-column: 9 / 13; grid-row: 1 / 2; }
+  .project--wells  { grid-column: 9 / 13; grid-row: 2 / 4; }
+  .project--small1 { grid-column: 1 / 5;  grid-row: 3 / 4; }
+  .project--small2 { grid-column: 5 / 9;  grid-row: 3 / 4; }
+  .project--small1 .project__label,
+  .project--small2 .project__label { display: none; }
+
+  .projects__cta { text-align: center; margin-top: 68px; }
+  .projects__cta a {
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: var(--ls-headline);
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 5px;
+  }
+
+  /* ============================================================
+     MEASURABLE RESULTS
+     ============================================================ */
+  .results {
+    background: var(--dark);
+    color: #fff;
+    padding: 130px 36px 140px;
+  }
+  .results__inner {
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 80px;
+    position: relative;
+  }
+  .results__left { position: relative; }
+  .results__left-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+  }
+  .results__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 26px;
+  }
+  .results__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.95;
+  }
+  .results__metrics { display: grid; grid-template-columns: 1fr; gap: 56px; }
+  .metric { border-top: 1px solid rgba(255,255,255,0.18); padding-top: 22px; }
+  .metric__label {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 16px;
+  }
+  .metric__value {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(40px, 5vw, 78px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .metric__caption {
+    font-size: 15px;
+    opacity: 0.7;
+    margin-top: 14px;
+    letter-spacing: var(--ls-small);
+    max-width: 460px;
+  }
+  .results__date { font-size: 12px; opacity: 0.5; margin-top: 56px; letter-spacing: 0.1em; }
+
+  /* ============================================================
+     PRESS
+     ============================================================ */
+  .press {
+    padding: 120px 0 120px;
+    background: var(--bg);
+  }
+  .press__header {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 36px 54px;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .press__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 22px;
+  }
+  .press__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.95;
+  }
+  .press__nav { display: flex; gap: 10px; }
+  .press__btn {
+    width: 50px; height: 50px;
+    border: 1px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.35s var(--ease), color 0.35s var(--ease), transform 0.35s var(--ease);
+  }
+  .press__btn:hover { background: var(--ink); color: var(--bg); }
+  .press__btn:active { transform: scale(0.94); }
+
+  .press__rail {
+    max-width: 1500px;
+    margin: 0 auto;
+    display: flex;
+    gap: 22px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 4px 36px 50px;
+    scroll-padding-left: 36px;
+    scrollbar-width: none;
+  }
+  .press__rail::-webkit-scrollbar { display: none; }
+  .press-card {
+    flex: 0 0 clamp(280px, 26vw, 400px);
+    scroll-snap-align: start;
+    background: #fff;
+    overflow: hidden;
+    transition: transform 0.55s var(--ease-out), box-shadow 0.55s var(--ease-out);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    cursor: pointer;
+  }
+  .press-card:hover { transform: translateY(-6px); box-shadow: 0 18px 38px -18px rgba(0,0,0,0.25); }
+  .press-card__media {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #ddd;
+  }
+  .press-card__media img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 1.2s var(--ease-out);
+  }
+  .press-card:hover .press-card__media img { transform: scale(1.05); }
+  .press-card__body { padding: 24px 26px 28px; }
+  .press-card__meta {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.65;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .press-card__meta span:first-child::after {
+    content: '·';
+    margin-left: 14px;
+    opacity: 0.6;
+  }
+  .press-card__headline {
+    font-size: clamp(18px, 1.5vw, 22px);
+    font-weight: 700;
+    letter-spacing: var(--ls-headline);
+    line-height: 1.12;
+    margin-bottom: 14px;
+  }
+  .press-card__excerpt {
+    font-size: 14px;
+    line-height: 1.45;
+    letter-spacing: var(--ls-small);
+    opacity: 0.78;
+    margin-bottom: 18px;
+  }
+  .press-card__cta {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 3px;
+    display: inline-block;
+  }
+
+  /* ============================================================
+     PARTNERS
+     ============================================================ */
+  .partners { padding: 120px 0 130px; overflow: hidden; }
+  .partners__inner {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 36px 72px;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 80px;
+    align-items: end;
+  }
+  .partners__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.95;
+  }
+  .partners__body {
+    font-size: clamp(13px, 1.25vw, 30px);
+    line-height: 1.45;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    padding-bottom: 6px;
+  }
+  .marquee {
+    max-width: 1500px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    padding: 24px 36px;
+  }
+  .marquee::before, .marquee::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 22vw;
+    max-width: 320px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .marquee::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg) 0%, rgba(239,236,230,0.95) 30%, rgba(239,236,230,0) 100%);
+  }
+  .marquee::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg) 0%, rgba(239,236,230,0.95) 30%, rgba(239,236,230,0) 100%);
+  }
+  .marquee__track {
+    display: flex;
+    gap: 140px;
+    width: max-content;
+    align-items: center;
+    animation: scrollX 52s linear infinite;
+  }
+  .marquee__track:hover { animation-play-state: paused; }
+  .marquee__item { flex: 0 0 auto; height: 100px; display: flex; align-items: center; }
+  .marquee__item img {
+    height: 100%;
+    width: auto;
+    object-fit: contain;
+    filter: grayscale(1) contrast(1.05);
+    opacity: 0.78;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+  }
+  .marquee__item:hover img { filter: grayscale(0); opacity: 1; }
+  @keyframes scrollX {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer {
+    padding: 56px 36px 40px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: var(--ls-small);
+    opacity: 0.7;
+  }
+
+  /* ============================================================
+     REVEAL
+     ============================================================ */
+  .reveal { opacity: 0; transform: translateY(30px);
+    transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out); }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.12s; }
+  .reveal.delay-2 { transition-delay: 0.24s; }
+  .reveal.delay-3 { transition-delay: 0.36s; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 900px) {
+    .nav { padding: 16px 22px; }
+    .nav.is-scrolled { padding: 12px 22px; }
+    .nav__links { gap: 16px; }
+    .nav__link { font-size: 10px; letter-spacing: 0.18em; }
+    .intro { grid-template-columns: 1fr; gap: 28px; padding: 80px 22px 70px; align-items: start; }
+    .projects { padding: 0 22px 60px; }
+    .projects__grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(5, 240px);
+    }
+    .project--arris  { grid-column: 1 / -1; grid-row: 1; }
+    .project--clark  { grid-column: 1 / -1; grid-row: 2; }
+    .project--wells  { grid-column: 1 / -1; grid-row: 3; }
+    .project--small1 { grid-column: 1 / -1; grid-row: 4; }
+    .project--small2 { grid-column: 1 / -1; grid-row: 5; }
+    .results { padding: 80px 22px 90px; }
+    .results__inner { grid-template-columns: 1fr; gap: 50px; }
+    .results__left { min-height: 100px; }
+    .results__left-inner { position: static; transform: none !important; }
+    .press__header { flex-direction: column; align-items: start; gap: 28px; padding: 0 22px 36px; }
+    .press__rail { padding-left: 22px; padding-right: 22px; }
+    .partners__inner { grid-template-columns: 1fr; gap: 24px; padding: 0 22px 50px; align-items: start; }
+    .footer { padding: 36px 22px; }
+  }
+</style>
+</head>
+<body class="is-loading">
+
+<!-- ============================================================
+     LOADER
+     ============================================================ -->
+<div class="loader" id="loader">
+  <h1 class="loader__title">
+    <span class="line">the new<span class="street">street</span></span>
+    <span class="line">standard</span>
+    <span class="line">of living.</span>
+  </h1>
+</div>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="#top">new<span class="street">street</span></a>
+  <div class="nav__links">
+    <a class="nav__link" href="projects.html">Projects</a>
+    <a class="nav__link" href="#approach">Approach</a>
+    <a class="nav__link" href="#partners">Partners</a>
+    <a class="nav__link" href="#press">Press</a>
+    <a class="nav__link" href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="top">
+  <video class="hero__video" autoplay loop muted playsinline preload="auto">
+    <source src="DJI_20260422133157_0452_D.mp4" type="video/mp4">
+  </video>
+  <div class="hero__mute"></div>
+  <h1 class="hero__title">
+    <span>the new<span class="street">street</span></span>
+    <span>standard</span>
+    <span>of living.</span>
+  </h1>
+  <div class="hero__scroll">Scroll</div>
+</section>
+
+<!-- ============================================================
+     INTRO
+     ============================================================ -->
+<section class="intro" id="approach">
+  <h2 class="intro__title reveal">Building a new tomorrow.</h2>
+  <p class="intro__body reveal delay-1">Newstreet is a vertically integrated multifamily developer focused on Chicago's most supply-constrained neighborhoods. We built proprietary infrastructure to find opportunities before they reach the market — and a construction platform to execute them with confidence.</p>
+</section>
+
+<!-- ============================================================
+     PROJECTS
+     ============================================================ -->
+<section class="projects" id="work">
+  <div class="projects__grid">
+    <a class="project project--arris reveal" href="arris.html">
+      <img class="project__img" src="Renders/Render%201.png" alt="The Arris, Chicago">
+      <div class="project__arrow">↗</div>
+      <div class="project__label">
+        <div class="project__label-title">The Arris</div>
+        <div class="project__label-city">Chicago</div>
+      </div>
+    </a>
+    <a class="project project--clark reveal delay-1" href="#">
+      <img class="project__img" src="1165Blurred.png" alt="1165Clark, Chicago">
+      <div class="project__arrow">↗</div>
+      <div class="project__label">
+        <div class="project__label-title">1165Clark</div>
+        <div class="project__label-city">Chicago</div>
+      </div>
+    </a>
+    <a class="project project--wells reveal delay-2" href="200wo.html">
+      <img class="project__img" src="200WO.png" alt="200 W Ohio, Chicago">
+      <div class="project__arrow">↗</div>
+      <div class="project__label">
+        <div class="project__label-title">200 W Ohio</div>
+        <div class="project__label-city">Chicago</div>
+      </div>
+    </a>
+    <a class="project project--small1 reveal delay-1" href="#">
+      <img class="project__img" src="Renders/render%202.png" alt="Project rendering">
+      <div class="project__arrow">↗</div>
+    </a>
+    <a class="project project--small2 reveal delay-2" href="#">
+      <img class="project__img" src="Renders/render%203.png" alt="Project rendering">
+      <div class="project__arrow">↗</div>
+    </a>
+  </div>
+  <div class="projects__cta reveal"><a href="projects.html">View Projects</a></div>
+</section>
+
+<!-- ============================================================
+     MEASURABLE RESULTS
+     ============================================================ -->
+<section class="results" id="results">
+  <div class="results__inner">
+    <div class="results__left">
+      <div class="results__left-inner" id="resultsLeftInner">
+        <div class="results__eyebrow">By the Numbers</div>
+        <h2 class="results__title">Measurable<br>Results</h2>
+      </div>
+    </div>
+    <div class="results__metrics">
+      <div class="metric reveal">
+        <div class="metric__label">Active Developments</div>
+        <div class="metric__value" data-target="4">0</div>
+        <div class="metric__caption">Active projects across the most in-demand neighborhoods.</div>
+      </div>
+      <div class="metric reveal delay-1">
+        <div class="metric__label">Active Investments</div>
+        <div class="metric__value" data-target="6">0</div>
+        <div class="metric__caption">Active investments across the most in-demand neighborhoods.</div>
+      </div>
+      <div class="metric reveal delay-2">
+        <div class="metric__label">Project Value</div>
+        <div class="metric__value" data-target="1.5" data-suffix="B" data-decimal="1">0</div>
+        <div class="metric__caption">In total project valuations once stabilized.</div>
+      </div>
+      <div class="metric reveal delay-3">
+        <div class="metric__label">Project Square Feet</div>
+        <div class="metric__value" data-target="1" data-suffix="M">0</div>
+        <div class="metric__caption">In total project square feet.</div>
+      </div>
+      <div class="results__date">As of 3 / 31 / 2026</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PARTNERS
+     ============================================================ -->
+<section class="partners" id="partners">
+  <div class="partners__inner">
+    <h2 class="partners__title reveal">Partner<br>Companies</h2>
+    <p class="partners__body reveal delay-1">Newstreet is proud to collaborate with a range of dedicated institutional partners who bring expertise and consistency to every single project.</p>
+  </div>
+  <div class="marquee">
+    <div class="marquee__track" id="marqueeTrack"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PRESS
+     ============================================================ -->
+<section class="press" id="press">
+  <div class="press__header">
+    <div>
+      <div class="press__eyebrow reveal">In The News</div>
+      <h2 class="press__title reveal delay-1">Press</h2>
+    </div>
+    <div class="press__nav reveal delay-2">
+      <button class="press__btn" data-dir="-1" aria-label="Previous">←</button>
+      <button class="press__btn" data-dir="1" aria-label="Next">→</button>
+    </div>
+  </div>
+  <div class="press__rail" id="pressRail">
+    <!-- Cards are injected by loadPressArticles() below -->
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer" id="contact">
+  <div>© Newstreet 2026</div>
+  <div>Chicago, IL</div>
+</footer>
+
+<script>
+  /* ============================================================
+     LOADER SEQUENCE
+     ============================================================ */
+  const loader = document.getElementById('loader');
+  // Start the "street" extension shortly after paint
+  setTimeout(() => loader.classList.add('is-extending'), 350);
+  // Fade loader away and let hero (video + white text) take over
+  setTimeout(() => {
+    loader.classList.add('is-done');
+    document.body.classList.remove('is-loading');
+    document.body.classList.add('is-loaded');
+  }, 1450);
+  // Remove loader from DOM to free interaction
+  setTimeout(() => { if (loader && loader.parentNode) loader.remove(); }, 2250);
+
+  /* ============================================================
+     NAV — scroll-triggered bar
+     ============================================================ */
+  const nav = document.getElementById('nav');
+  function onNavScroll() {
+    if (window.scrollY > 60) nav.classList.add('is-scrolled');
+    else nav.classList.remove('is-scrolled');
+  }
+  window.addEventListener('scroll', onNavScroll, { passive: true });
+  onNavScroll();
+
+  /* ============================================================
+     PARTNER MARQUEE
+     ============================================================ */
+  const partners = [
+    'Companies/Wintrust.png',
+    'Companies/PH.png',
+    'Companies/SEEK.png',
+    'Companies/Cobourn.png',
+    'Companies/McGuire.png',
+    'Companies/ENC.png',
+    'Companies/scb.png'
+  ];
+  const track = document.getElementById('marqueeTrack');
+  for (let i = 0; i < 2; i++) {
+    partners.forEach(src => {
+      const div = document.createElement('div');
+      div.className = 'marquee__item';
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      img.loading = 'lazy';
+      div.appendChild(img);
+      track.appendChild(div);
+    });
+  }
+
+  /* ============================================================
+     COUNT-UP METRICS
+     ============================================================ */
+  function countUp(el) {
+    if (el.dataset.done === '1') return;
+    el.dataset.done = '1';
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix || '';
+    const decimals = parseInt(el.dataset.decimal || '0', 10);
+    const duration = 1800;
+    const start = performance.now();
+    function frame(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = target * eased;
+      el.textContent = (decimals > 0 ? val.toFixed(decimals) : Math.round(val)) + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+      else el.textContent = (decimals > 0 ? target.toFixed(decimals) : target) + suffix;
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* ============================================================
+     REVEAL OBSERVER
+     ============================================================ */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        if (entry.target.classList.contains('metric')) {
+          const v = entry.target.querySelector('.metric__value');
+          if (v) countUp(v);
+        }
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ============================================================
+     RESULTS — left text follows scroll
+     ============================================================ */
+  const resultsSection = document.querySelector('.results');
+  const leftCol = document.querySelector('.results__left');
+  const leftInner = document.getElementById('resultsLeftInner');
+  function updateResultsScroll() {
+    if (!resultsSection || !leftCol || !leftInner) return;
+    if (window.innerWidth <= 900) { leftInner.style.transform = ''; return; }
+    const rect = resultsSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const sectionH = rect.height;
+    const total = sectionH + vh;
+    const passed = vh - rect.top;
+    const progress = Math.max(0, Math.min(1, passed / total));
+    const range = leftCol.offsetHeight - leftInner.offsetHeight;
+    if (range > 0) {
+      leftInner.style.transform = `translateY(${range * progress}px)`;
+    }
+  }
+  window.addEventListener('scroll', updateResultsScroll, { passive: true });
+  window.addEventListener('resize', updateResultsScroll);
+  updateResultsScroll();
+
+  /* ============================================================
+     PRESS RAIL — load from press.xlsx + prev/next buttons
+     ============================================================ */
+  const pressRail = document.getElementById('pressRail');
+  const delays = ['', ' delay-1', ' delay-2', ' delay-3', ''];
+
+  function buildPressCard(article, index) {
+    const { Outlet, Date: date, Headline, Excerpt, Image, URL } = article;
+    const delay = delays[index % delays.length];
+    const wrapStart = URL ? `<a href="${URL}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">` : '';
+    const wrapEnd  = URL ? `</a>` : '';
+    const imgTag   = Image
+      ? `<img src="${Image}" alt="${Outlet || ''}" loading="lazy">`
+      : `<div style="width:100%;height:100%;background:#d0d0d0;"></div>`;
+    return `
+      <article class="press-card reveal${delay}">
+        ${wrapStart}
+        <div class="press-card__media">${imgTag}</div>
+        <div class="press-card__body">
+          <div class="press-card__meta">
+            <span>${Outlet || ''}</span>
+            <span>${date || ''}</span>
+          </div>
+          <h3 class="press-card__headline">${Headline || ''}</h3>
+          <p class="press-card__excerpt">${Excerpt || ''}</p>
+          ${URL ? `<span class="press-card__cta">Read article ↗</span>` : ''}
+        </div>
+        ${wrapEnd}
+      </article>`;
+  }
+
+  async function loadPressArticles() {
+    try {
+      const res  = await fetch('press.xlsx');
+      const buf  = await res.arrayBuffer();
+      const wb   = XLSX.read(buf, { type: 'array' });
+      const ws   = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws);
+      pressRail.innerHTML = rows.map((row, i) => buildPressCard(row, i)).join('');
+      // Re-trigger reveal observer on new cards
+      pressRail.querySelectorAll('.reveal').forEach(el => io.observe(el));
+    } catch (e) {
+      console.warn('Could not load press.xlsx — press section will be empty.', e);
+    }
+  }
+
+  loadPressArticles();
+
+  document.querySelectorAll('.press__btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const dir = parseInt(btn.dataset.dir, 10);
+      const card = pressRail.querySelector('.press-card');
+      if (!card) return;
+      const step = card.offsetWidth + 22; // card width + gap
+      pressRail.scrollBy({ left: step * dir, behavior: 'smooth' });
+    });
+  });
+
+  /* ============================================================
+     HERO PARALLAX
+     ============================================================ */
+  const heroTitle = document.querySelector('.hero__title');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y < window.innerHeight && heroTitle) {
+      heroTitle.style.transform = `translateY(${y * 0.18}px)`;
+      heroTitle.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.7)));
+    }
+  }, { passive: true });
+</script>
+
+</body>
+</html>

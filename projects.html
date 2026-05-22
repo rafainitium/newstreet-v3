@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects — Newstreet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Murecho:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET / VARS  (shared with index)
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  :root {
+    --bg: #efece6;
+    --ink: #0e0e0e;
+    --ink-soft: #4a4a4a;
+    --line: rgba(0,0,0,0.12);
+    --dark: #161616;
+    --ls-display: -0.075em;
+    --ls-headline: -0.06em;
+    --ls-body: -0.038em;
+    --ls-small: -0.02em;
+    --ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; }
+
+  /* ============================================================
+     NAV  (dark backdrop visible from start — no hero behind)
+     ============================================================ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    color: #fff;
+    transition: padding 0.5s var(--ease);
+  }
+  .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(18, 18, 18, 0.82);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    z-index: -1;
+  }
+  .nav::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.14);
+  }
+  .nav.is-scrolled { padding: 16px 32px; }
+
+  .nav__brand {
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: var(--ls-display);
+    line-height: 1;
+    z-index: 1;
+  }
+  .nav__brand .street { font-weight: 200; }
+  .nav__links { display: flex; gap: 30px; z-index: 1; }
+  .nav__link {
+    position: relative;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 0;
+  }
+  .nav__link::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link:hover::after { transform: scaleX(1); }
+  .nav__link.is-active::after { transform: scaleX(1); opacity: 0.55; }
+
+  /* ============================================================
+     INTRO  (mirrors index .intro EXACTLY — same sizes, same grid)
+     ============================================================ */
+  .intro {
+    padding: 170px 36px 110px;
+    max-width: 1500px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .intro__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.96;
+  }
+  .intro__body {
+    font-size: clamp(13px, 1.25vw, 30px);
+    line-height: 1.45;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    padding-bottom: 6px;
+  }
+
+  /* ============================================================
+     FILTERS  (three distinct columns with vertical hairlines)
+     ============================================================ */
+  .filters {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 0 36px;
+  }
+  .filters__inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-group {
+    padding: 32px 40px 34px;
+    border-left: 1px solid var(--line);
+    position: relative;
+  }
+  .filter-group:first-child { border-left: none; padding-left: 4px; }
+  .filter-group:last-child  { padding-right: 4px; }
+
+  .filter-group__label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    font-weight: 500;
+    margin-bottom: 22px;
+  }
+  .filter-group__options {
+    display: flex;
+    align-items: baseline;
+    gap: 13px;
+    flex-wrap: wrap;
+  }
+  .filter-opt {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 2px 0;
+    font-family: inherit;
+    font-size: 14px;
+    letter-spacing: var(--ls-small);
+    font-weight: 400;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .filter-opt::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s var(--ease);
+  }
+  .filter-opt:hover { color: var(--ink); }
+  .filter-opt:hover::after { transform: scaleX(1); }
+  .filter-opt.is-active { color: var(--ink); }
+  .filter-opt.is-active::after { transform: scaleX(1); }
+  .filter-opt-sep {
+    font-size: 14px;
+    color: var(--ink);
+    opacity: 0.22;
+    user-select: none;
+  }
+
+  /* ============================================================
+     PROJECTS SECTION  (3-column grid)
+     ============================================================ */
+  .projects-section {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 56px 36px 140px;
+  }
+  .projects-section__meta {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 32px;
+    font-weight: 500;
+  }
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  /* ============================================================
+     PROJECT CARD
+     ============================================================ */
+  .pcard {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    background: #ccc;
+    aspect-ratio: 4 / 3;
+    display: block;
+  }
+  .pcard.is-hidden { display: none; }
+
+  .pcard__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    inset: 0;
+    transition: transform 1.1s var(--ease-out), filter 1.1s var(--ease-out);
+  }
+  .pcard:hover .pcard__img {
+    transform: scale(1.04);
+    filter: brightness(0.68);
+  }
+
+  .pcard::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top,
+      rgba(0,0,0,0.7) 0%,
+      rgba(0,0,0,0.1) 45%,
+      rgba(0,0,0,0)   100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .pcard__label {
+    position: absolute;
+    left: 22px;
+    bottom: 20px;
+    z-index: 2;
+    color: #fff;
+    transition: transform 0.55s var(--ease-out);
+  }
+  .pcard:hover .pcard__label { transform: translateY(-108px); }
+  .pcard__label-title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(20px, 1.85vw, 26px);
+    font-weight: 400;
+    letter-spacing: -0.065em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .pcard__label-address {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+
+  .pcard__arrow {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 2;
+    color: #fff;
+    font-size: 14px;
+    width: 34px; height: 34px;
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-5px, 5px) scale(0.88);
+    opacity: 0;
+    transition: all 0.45s var(--ease-out);
+  }
+  .pcard:hover .pcard__arrow { opacity: 1; transform: translate(0,0) scale(1); }
+
+  .pcard__details {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 16px 22px 20px;
+    z-index: 3;
+    color: #fff;
+    transform: translateY(100%);
+    transition: transform 0.52s var(--ease-out);
+  }
+  .pcard:hover .pcard__details { transform: translateY(0); }
+
+  .pcard__tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .pcard__tag {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.85;
+  }
+  .pcard__tag-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 7px;
+  }
+  .pcard__tag-sep { opacity: 0.35; font-weight: 400; }
+  .pcard__tag--pre          { color: #c5c5c5; }
+  .pcard__tag--construction { color: #ff9a55; }
+  .pcard__tag--completed    { color: #6ee7a0; }
+
+  .pcard__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    padding-top: 12px;
+  }
+  .stat__value {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(18px, 1.6vw, 24px);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 1;
+    margin-bottom: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat__label {
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    font-weight: 500;
+  }
+
+  .pcard--placeholder { background: #1a1a1a; }
+  .pcard__placeholder-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pcard__placeholder-bg span {
+    font-size: 9.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.18);
+    font-weight: 500;
+  }
+
+  /* ============================================================
+     EMPTY STATE
+     ============================================================ */
+  .projects-empty {
+    display: none;
+    padding: 60px 0 20px;
+    color: var(--ink-soft);
+  }
+  .projects-empty.is-visible { display: block; }
+  .projects-empty__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(24px, 2.8vw, 38px);
+    font-weight: 400;
+    letter-spacing: -0.065em;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .projects-empty__body {
+    font-size: 14px;
+    opacity: 0.65;
+    letter-spacing: var(--ls-small);
+  }
+
+  /* ============================================================
+     REVEAL
+     ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity 1s var(--ease-out), transform 1s var(--ease-out);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.1s; }
+  .reveal.delay-2 { transition-delay: 0.2s; }
+  .reveal.delay-3 { transition-delay: 0.3s; }
+
+  /* ============================================================
+     FOOTER  (matches index)
+     ============================================================ */
+  .footer {
+    padding: 56px 36px 40px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: var(--ls-small);
+    opacity: 0.7;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 1100px) {
+    .intro { padding: 130px 22px 70px; grid-template-columns: 1fr; gap: 28px; }
+    .filters { padding: 0 22px; }
+    .filters__inner { grid-template-columns: 1fr; }
+    .filter-group {
+      border-left: none;
+      border-top: 1px solid var(--line);
+      padding: 24px 0 26px;
+    }
+    .filter-group:first-child { border-top: none; padding-top: 24px; padding-left: 0; }
+    .filter-group:last-child { padding-right: 0; }
+    .projects-section { padding: 44px 22px 90px; }
+    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 900px) {
+    .nav { padding: 16px 22px; }
+    .nav.is-scrolled { padding: 12px 22px; }
+    .nav__links { gap: 16px; }
+    .nav__link { font-size: 10px; letter-spacing: 0.18em; }
+    .footer { padding: 36px 22px; }
+  }
+  @media (max-width: 640px) {
+    .projects-grid { grid-template-columns: 1fr; }
+    .filter-group__options { gap: 10px; }
+    .filter-opt { font-size: 13px; }
+    .pcard:hover .pcard__label { transform: translateY(-114px); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">new<span class="street">street</span></a>
+  <div class="nav__links">
+    <a class="nav__link is-active" href="projects.html">Projects</a>
+    <a class="nav__link" href="index.html#approach">Approach</a>
+    <a class="nav__link" href="index.html#partners">Partners</a>
+    <a class="nav__link" href="index.html#press">Press</a>
+    <a class="nav__link" href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     INTRO  (matches index .intro pattern + sizes)
+     ============================================================ -->
+<section class="intro">
+  <h1 class="intro__title reveal">Projects.</h1>
+  <p class="intro__body reveal delay-1">A focused portfolio of development and investment projects across Chicago's most supply-constrained neighborhoods — selectable below by stage, involvement, and asset type.</p>
+</section>
+
+<!-- ============================================================
+     FILTERS  (three distinct column blocks)
+     ============================================================ -->
+<section class="filters" aria-label="Project filters">
+  <div class="filters__inner">
+
+    <div class="filter-group" data-group="stage">
+      <span class="filter-group__label">Stage</span>
+      <div class="filter-group__options">
+        <button class="filter-opt filter-opt--all is-active" data-group="stage" data-value="">All</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="stage" data-value="pre-development">Pre-Development</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="stage" data-value="under-construction">Under Construction</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="stage" data-value="completed">Completed</button>
+      </div>
+    </div>
+
+    <div class="filter-group" data-group="involvement">
+      <span class="filter-group__label">Involvement</span>
+      <div class="filter-group__options">
+        <button class="filter-opt filter-opt--all is-active" data-group="involvement" data-value="">All</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="involvement" data-value="developer">Developer</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="involvement" data-value="investor">Investor</button>
+      </div>
+    </div>
+
+    <div class="filter-group" data-group="type">
+      <span class="filter-group__label">Asset Type</span>
+      <div class="filter-group__options">
+        <button class="filter-opt filter-opt--all is-active" data-group="type" data-value="">All</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="type" data-value="multifamily">Multifamily</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="type" data-value="mixed-use">Mixed-Use</button>
+        <span class="filter-opt-sep">·</span>
+        <button class="filter-opt" data-group="type" data-value="hotel">Hotel</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     PROJECTS
+     ============================================================ -->
+<section class="projects-section">
+  <div class="projects-section__meta" id="projectsCount">4 Projects</div>
+
+  <div class="projects-grid" id="projectsGrid">
+
+    <!-- The Arris -->
+    <a class="pcard reveal"
+       href="arris.html"
+       data-stage="under-construction"
+       data-involvement="developer"
+       data-type="mixed-use">
+      <img class="pcard__img" src="Renders/Render%201.png" alt="The Arris">
+      <div class="pcard__arrow">↗</div>
+      <div class="pcard__label">
+        <div class="pcard__label-title">The Arris</div>
+        <div class="pcard__label-address">River North · Chicago</div>
+      </div>
+      <div class="pcard__details">
+        <div class="pcard__tags">
+          <span class="pcard__tag pcard__tag--construction">
+            <span class="pcard__tag-dot"></span>Under Construction
+          </span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Developer</span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Mixed-Use</span>
+        </div>
+        <div class="pcard__stats">
+          <div><div class="stat__value">12</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">148</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">182K</div><div class="stat__label">Sq Ft</div></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 1165 N Clark -->
+    <a class="pcard reveal delay-1"
+       href="#"
+       data-stage="pre-development"
+       data-involvement="developer"
+       data-type="mixed-use">
+      <img class="pcard__img" src="1165Blurred.png" alt="1165 N Clark">
+      <div class="pcard__arrow">↗</div>
+      <div class="pcard__label">
+        <div class="pcard__label-title">1165 N Clark</div>
+        <div class="pcard__label-address">Old Town · Chicago</div>
+      </div>
+      <div class="pcard__details">
+        <div class="pcard__tags">
+          <span class="pcard__tag pcard__tag--pre">
+            <span class="pcard__tag-dot"></span>Pre-Development
+          </span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Developer</span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Mixed-Use</span>
+        </div>
+        <div class="pcard__stats">
+          <div><div class="stat__value">14</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">200</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">210K</div><div class="stat__label">Sq Ft</div></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 200 W Ohio -->
+    <a class="pcard reveal delay-2"
+       href="200wo.html"
+       data-stage="pre-development"
+       data-involvement="developer"
+       data-type="mixed-use">
+      <img class="pcard__img" src="200WO.png" alt="200 W Ohio">
+      <div class="pcard__arrow">↗</div>
+      <div class="pcard__label">
+        <div class="pcard__label-title">200 W Ohio</div>
+        <div class="pcard__label-address">River North · Chicago</div>
+      </div>
+      <div class="pcard__details">
+        <div class="pcard__tags">
+          <span class="pcard__tag pcard__tag--pre">
+            <span class="pcard__tag-dot"></span>Pre-Development
+          </span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Developer</span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Mixed-Use</span>
+        </div>
+        <div class="pcard__stats">
+          <div><div class="stat__value">16</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">185</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">195K</div><div class="stat__label">Sq Ft</div></div>
+        </div>
+      </div>
+    </a>
+
+    <!-- 424 S Wabash -->
+    <a class="pcard pcard--placeholder reveal delay-3"
+       href="#"
+       data-stage="pre-development"
+       data-involvement="investor"
+       data-type="hotel mixed-use">
+      <div class="pcard__placeholder-bg">
+        <span>Renders Coming Soon</span>
+      </div>
+      <div class="pcard__arrow">↗</div>
+      <div class="pcard__label">
+        <div class="pcard__label-title">424 S Wabash</div>
+        <div class="pcard__label-address">South Loop · Chicago</div>
+      </div>
+      <div class="pcard__details">
+        <div class="pcard__tags">
+          <span class="pcard__tag pcard__tag--pre">
+            <span class="pcard__tag-dot"></span>Pre-Development
+          </span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Investor</span>
+          <span class="pcard__tag-sep">·</span>
+          <span class="pcard__tag">Hotel + Mixed-Use</span>
+        </div>
+        <div class="pcard__stats">
+          <div><div class="stat__value">—</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">—</div><div class="stat__label">Keys / Units</div></div>
+          <div><div class="stat__value">—</div><div class="stat__label">Sq Ft</div></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="projects-empty" id="projectsEmpty">
+    <div class="projects-empty__title">No projects match.</div>
+    <div class="projects-empty__body">Try clearing one of the filters above.</div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div>© Newstreet 2026</div>
+  <div>Chicago, IL</div>
+</footer>
+
+<script>
+  /* ============================================================
+     NAV — compact on scroll
+     ============================================================ */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  /* ============================================================
+     FILTER LOGIC
+     ============================================================ */
+  const cards   = document.querySelectorAll('.pcard');
+  const countEl = document.getElementById('projectsCount');
+  const emptyEl = document.getElementById('projectsEmpty');
+  const active  = { stage: new Set(), involvement: new Set(), type: new Set() };
+
+  function applyFilters() {
+    document.querySelectorAll('.filter-group').forEach(grp => {
+      const g = grp.dataset.group;
+      const allBtn = grp.querySelector('.filter-opt--all');
+      if (allBtn) allBtn.classList.toggle('is-active', active[g].size === 0);
+    });
+
+    let visible = 0;
+    cards.forEach(card => {
+      const stage       = card.dataset.stage;
+      const involvement = card.dataset.involvement;
+      const types       = card.dataset.type.split(' ');
+
+      const stageOk = active.stage.size === 0       || active.stage.has(stage);
+      const invOk   = active.involvement.size === 0 || active.involvement.has(involvement);
+      const typeOk  = active.type.size === 0        || [...active.type].some(t => types.includes(t));
+
+      const show = stageOk && invOk && typeOk;
+      card.classList.toggle('is-hidden', !show);
+      if (show) visible++;
+    });
+
+    countEl.textContent = visible === 1 ? '1 Project' : `${visible} Projects`;
+    emptyEl.classList.toggle('is-visible', visible === 0);
+  }
+
+  document.querySelectorAll('.filter-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const group = opt.dataset.group;
+      const value = opt.dataset.value;
+      if (opt.classList.contains('filter-opt--all')) {
+        active[group].clear();
+        document.querySelectorAll(`.filter-opt[data-group="${group}"]:not(.filter-opt--all)`)
+          .forEach(o => o.classList.remove('is-active'));
+      } else {
+        const set = active[group];
+        if (set.has(value)) { set.delete(value); opt.classList.remove('is-active'); }
+        else                { set.add(value);    opt.classList.add('is-active'); }
+      }
+      applyFilters();
+    });
+  });
+
+  /* ============================================================
+     REVEAL ON SCROLL
+     ============================================================ */
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
