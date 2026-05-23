@@ -168,6 +168,99 @@
   }
   .nav__link:hover::after { transform: scaleX(1); }
 
+  /* dropdown */
+  .nav__item--dropdown { position: relative; }
+  .nav__link--trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+  }
+  .nav__link--trigger::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 18px;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link--trigger:hover::after { transform: scaleX(1); }
+  .nav__caret {
+    font-size: 8px;
+    opacity: 0.6;
+    display: inline-block;
+    transition: transform 0.3s var(--ease);
+  }
+  .nav__item--dropdown:hover .nav__caret,
+  .nav__item--dropdown:focus-within .nav__caret { transform: rotate(180deg); }
+  .nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    margin-top: 12px;
+    background: rgba(18, 18, 18, 0.94);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+    min-width: 200px;
+  }
+  .nav__dropdown::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0; right: 0;
+    height: 14px;
+  }
+  .nav__item--dropdown:hover .nav__dropdown,
+  .nav__item--dropdown:focus-within .nav__dropdown {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav__dropdown-link {
+    position: relative;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    padding: 2px 0;
+  }
+  .nav__dropdown-link::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__dropdown-link:hover::after { transform: scaleX(1); }
+
   /* ============================================================
      HERO
      ============================================================ */
@@ -508,17 +601,17 @@
   .press-card {
     flex: 0 0 clamp(280px, 26vw, 400px);
     scroll-snap-align: start;
-    background: #fff;
+    background: transparent;
     overflow: hidden;
-    transition: transform 0.55s var(--ease-out), box-shadow 0.55s var(--ease-out);
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    transition: transform 0.55s var(--ease-out);
     cursor: pointer;
   }
-  .press-card:hover { transform: translateY(-6px); box-shadow: 0 18px 38px -18px rgba(0,0,0,0.25); }
+  .press-card:hover { transform: translateY(-5px); }
   .press-card__media {
+    position: relative;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: #ddd;
+    background: #c8c4bc;
   }
   .press-card__media img {
     width: 100%; height: 100%;
@@ -526,48 +619,54 @@
     transition: transform 1.2s var(--ease-out);
   }
   .press-card:hover .press-card__media img { transform: scale(1.05); }
-  .press-card__body { padding: 24px 26px 28px; }
-  .press-card__meta {
-    font-size: 11px;
-    letter-spacing: 0.22em;
+  .press-card__outlet-tag {
+    position: absolute;
+    top: 0; left: 0;
+    background: rgba(14, 14, 14, 0.78);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    opacity: 0.6;
-    margin-bottom: 14px;
-    display: flex;
-    gap: 14px;
-    align-items: center;
+    padding: 9px 16px;
   }
-  .press-card__meta span:first-child::after {
-    content: '·';
-    margin-left: 14px;
-    opacity: 0.6;
+  .press-card__body { padding: 20px 0 28px; }
+  .press-card__date {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 14px;
   }
   .press-card__headline {
     font-family: 'Murecho', sans-serif;
     font-size: clamp(18px, 1.5vw, 22px);
     font-weight: 400;
-    letter-spacing: -0.07em;
-    line-height: 1.05;
+    letter-spacing: -0.06em;
+    line-height: 1.08;
     margin-bottom: 14px;
   }
   .press-card__excerpt {
     font-size: 14px;
-    line-height: 1.45;
+    line-height: 1.5;
     letter-spacing: var(--ls-body);
     font-weight: 300;
-    opacity: 0.78;
-    margin-bottom: 18px;
+    opacity: 0.72;
+    margin-bottom: 20px;
   }
   .press-card__cta {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.22em;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    border-bottom: 1px solid currentColor;
-    padding-bottom: 3px;
-    display: inline-block;
-    opacity: 0.7;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.65;
+    transition: opacity 0.3s var(--ease), gap 0.3s var(--ease);
   }
+  .press-card:hover .press-card__cta { opacity: 1; gap: 12px; }
+  .press-card__cta::after { content: '▶'; font-size: 7px; }
 
   /* ============================================================
      PARTNERS
@@ -717,6 +816,13 @@
   <a class="nav__brand" href="#top">new<span class="street">street</span></a>
   <div class="nav__links">
     <a class="nav__link" href="projects.html">Projects</a>
+    <div class="nav__item nav__item--dropdown">
+      <button class="nav__link--trigger" type="button" aria-expanded="false">Firm <span class="nav__caret">▾</span></button>
+      <div class="nav__dropdown">
+        <a class="nav__dropdown-link" href="about.html">About the Firm</a>
+        <a class="nav__dropdown-link" href="team.html">Team</a>
+      </div>
+    </div>
     <a class="nav__link" href="#approach">Approach</a>
     <a class="nav__link" href="#partners">Partners</a>
     <a class="nav__link" href="#press">Press</a>
@@ -995,19 +1101,20 @@
     const wrapEnd  = URL ? `</a>` : '';
     const imgTag   = Image
       ? `<img src="${Image}" alt="${Outlet || ''}" loading="lazy">`
-      : `<div style="width:100%;height:100%;background:#d0d0d0;"></div>`;
+      : `<div style="width:100%;height:100%;background:#c8c4bc;"></div>`;
+    const outletTag = Outlet ? `<div class="press-card__outlet-tag">${Outlet}</div>` : '';
     return `
       <article class="press-card reveal${delay}">
         ${wrapStart}
-        <div class="press-card__media">${imgTag}</div>
+        <div class="press-card__media">
+          ${imgTag}
+          ${outletTag}
+        </div>
         <div class="press-card__body">
-          <div class="press-card__meta">
-            <span>${Outlet || ''}</span>
-            <span>${date || ''}</span>
-          </div>
+          ${date ? `<div class="press-card__date">${date}</div>` : ''}
           <h3 class="press-card__headline">${Headline || ''}</h3>
           <p class="press-card__excerpt">${Excerpt || ''}</p>
-          ${URL ? `<span class="press-card__cta">Read article ↗</span>` : ''}
+          ${URL ? `<span class="press-card__cta">Read more</span>` : ''}
         </div>
         ${wrapEnd}
       </article>`;
