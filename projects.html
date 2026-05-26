@@ -105,6 +105,99 @@
   .nav__link:hover::after { transform: scaleX(1); }
   .nav__link.is-active::after { transform: scaleX(1); opacity: 0.55; }
 
+  /* dropdown */
+  .nav__item--dropdown { position: relative; }
+  .nav__link--trigger {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    padding: 8px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+  }
+  .nav__link--trigger::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 18px;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link--trigger:hover::after { transform: scaleX(1); }
+  .nav__caret {
+    font-size: 8px;
+    opacity: 0.6;
+    display: inline-block;
+    transition: transform 0.3s var(--ease);
+  }
+  .nav__item--dropdown:hover .nav__caret,
+  .nav__item--dropdown:focus-within .nav__caret { transform: rotate(180deg); }
+  .nav__dropdown {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    margin-top: 12px;
+    background: rgba(18, 18, 18, 0.94);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    padding: 18px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+    min-width: 200px;
+  }
+  .nav__dropdown::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 0; right: 0;
+    height: 14px;
+  }
+  .nav__item--dropdown:hover .nav__dropdown,
+  .nav__item--dropdown:focus-within .nav__dropdown {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+  .nav__dropdown-link {
+    position: relative;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    padding: 2px 0;
+  }
+  .nav__dropdown-link::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__dropdown-link:hover::after { transform: scaleX(1); }
+
   /* ============================================================
      INTRO  (mirrors index .intro EXACTLY — same sizes, same grid)
      ============================================================ */
@@ -143,15 +236,12 @@
   .filters__inner {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
   }
   .filter-group {
     padding: 32px 40px 34px;
-    border-left: 1px solid var(--line);
     position: relative;
   }
-  .filter-group:first-child { border-left: none; padding-left: 4px; }
+  .filter-group:first-child { padding-left: 4px; }
   .filter-group:last-child  { padding-right: 4px; }
 
   .filter-group__label {
@@ -199,6 +289,39 @@
   .filter-opt:hover::after { transform: scaleX(1); }
   .filter-opt.is-active { color: var(--ink); }
   .filter-opt.is-active::after { transform: scaleX(1); }
+  .filters__footer {
+    padding: 0 4px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  }
+  .filters__footer.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .filters__reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--ink);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    padding: 9px 16px;
+    transition: background 0.25s var(--ease-out), color 0.25s var(--ease-out);
+  }
+  .filters__reset:hover {
+    background: var(--ink);
+    color: var(--bg);
+  }
+
   .filter-opt-sep {
     font-size: 14px;
     color: var(--ink);
@@ -207,7 +330,7 @@
   }
 
   /* ============================================================
-     PROJECTS SECTION  (3-column grid)
+     PROJECTS SECTION
      ============================================================ */
   .projects-section {
     max-width: 1500px;
@@ -222,11 +345,20 @@
     margin-bottom: 32px;
     font-weight: 500;
   }
+
+  /* ---- Creative layout: 3-col grid, auto rows ---- */
   .projects-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: clamp(300px, 36vw, 540px);
     gap: 14px;
   }
+
+  /* Fixed layout slots — same sizes always, cards fill from top */
+  .pcard--p1 { grid-column: 1 / 3; grid-row: 1; }
+  .pcard--p2 { grid-column: 3;     grid-row: 1; }
+  .pcard--p3 { grid-column: 1;     grid-row: 2; }
+  .pcard--p4 { grid-column: 2 / 4; grid-row: 2; }
 
   /* ============================================================
      PROJECT CARD
@@ -236,10 +368,12 @@
     overflow: hidden;
     cursor: pointer;
     background: #ccc;
-    aspect-ratio: 4 / 3;
     display: block;
+    transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
   }
-  .pcard.is-hidden { display: none; }
+  .pcard.is-hidden  { display: none; }
+  .pcard.is-hiding  { opacity: 0; transform: scale(0.96); pointer-events: none; }
+  .pcard.is-showing { opacity: 0; transform: scale(0.96); }
 
   .pcard__img {
     width: 100%;
@@ -447,15 +581,15 @@
     .intro { padding: 130px 22px 70px; grid-template-columns: 1fr; gap: 28px; }
     .filters { padding: 0 22px; }
     .filters__inner { grid-template-columns: 1fr; }
-    .filter-group {
-      border-left: none;
-      border-top: 1px solid var(--line);
-      padding: 24px 0 26px;
-    }
-    .filter-group:first-child { border-top: none; padding-top: 24px; padding-left: 0; }
+    .filter-group { padding: 24px 0 26px; }
+    .filter-group:first-child { padding-left: 0; }
     .filter-group:last-child { padding-right: 0; }
     .projects-section { padding: 44px 22px 90px; }
-    .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    /* Collapse to 1-col below 1100px */
+    .projects-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+    .pcard--p1, .pcard--p2, .pcard--p3, .pcard--p4 {
+      grid-column: auto; grid-row: auto; aspect-ratio: 4 / 3;
+    }
   }
   @media (max-width: 900px) {
     .nav { padding: 16px 22px; }
@@ -481,7 +615,13 @@
   <a class="nav__brand" href="index.html">new<span class="street">street</span></a>
   <div class="nav__links">
     <a class="nav__link is-active" href="projects.html">Projects</a>
-    <a class="nav__link" href="index.html#approach">Approach</a>
+    <div class="nav__item nav__item--dropdown">
+      <button class="nav__link--trigger" type="button" aria-expanded="false">Firm <span class="nav__caret">▾</span></button>
+      <div class="nav__dropdown">
+        <a class="nav__dropdown-link" href="about.html">About the Firm</a>
+        <a class="nav__dropdown-link" href="team.html">Team</a>
+      </div>
+    </div>
     <a class="nav__link" href="index.html#partners">Partners</a>
     <a class="nav__link" href="index.html#press">Press</a>
     <a class="nav__link" href="index.html#contact">Contact</a>
@@ -492,8 +632,8 @@
      INTRO  (matches index .intro pattern + sizes)
      ============================================================ -->
 <section class="intro">
-  <h1 class="intro__title reveal">Projects.</h1>
-  <p class="intro__body reveal delay-1">A focused portfolio of development and investment projects across Chicago's most supply-constrained neighborhoods — selectable below by stage, involvement, and asset type.</p>
+  <h1 class="intro__title reveal">Our Projects.</h1>
+  <p class="intro__body reveal delay-1">Our developments reflect a creative and disciplined approach, where projects are selected for their long-term potential, strategic positioning, and contribution to the surrounding communities in which we develop. </p>
 </section>
 
 <!-- ============================================================
@@ -540,6 +680,17 @@
     </div>
 
   </div>
+
+  <div class="filters__footer" id="filtersFooter">
+    <button class="filters__reset" id="filtersReset" aria-label="Clear all filters">
+      <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="1" y1="1" x2="9" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="9" y1="1" x2="1" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Reset Filters
+    </button>
+  </div>
+
 </section>
 
 <!-- ============================================================
@@ -560,7 +711,7 @@
       <div class="pcard__arrow">↗</div>
       <div class="pcard__label">
         <div class="pcard__label-title">The Arris</div>
-        <div class="pcard__label-address">River North · Chicago</div>
+        <div class="pcard__label-address">Lincoln Park · Chicago</div>
       </div>
       <div class="pcard__details">
         <div class="pcard__tags">
@@ -573,9 +724,9 @@
           <span class="pcard__tag">Mixed-Use</span>
         </div>
         <div class="pcard__stats">
-          <div><div class="stat__value">12</div><div class="stat__label">Stories</div></div>
-          <div><div class="stat__value">148</div><div class="stat__label">Units</div></div>
-          <div><div class="stat__value">182K</div><div class="stat__label">Sq Ft</div></div>
+          <div><div class="stat__value">5</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">48</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">47.5K</div><div class="stat__label">Sq Ft</div></div>
         </div>
       </div>
     </a>
@@ -590,7 +741,7 @@
       <div class="pcard__arrow">↗</div>
       <div class="pcard__label">
         <div class="pcard__label-title">1165 N Clark</div>
-        <div class="pcard__label-address">Old Town · Chicago</div>
+        <div class="pcard__label-address">Gold Coast · Chicago</div>
       </div>
       <div class="pcard__details">
         <div class="pcard__tags">
@@ -603,9 +754,9 @@
           <span class="pcard__tag">Mixed-Use</span>
         </div>
         <div class="pcard__stats">
-          <div><div class="stat__value">14</div><div class="stat__label">Stories</div></div>
-          <div><div class="stat__value">200</div><div class="stat__label">Units</div></div>
-          <div><div class="stat__value">210K</div><div class="stat__label">Sq Ft</div></div>
+          <div><div class="stat__value">7</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">71</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">92.2K</div><div class="stat__label">Sq Ft</div></div>
         </div>
       </div>
     </a>
@@ -633,8 +784,8 @@
           <span class="pcard__tag">Mixed-Use</span>
         </div>
         <div class="pcard__stats">
-          <div><div class="stat__value">16</div><div class="stat__label">Stories</div></div>
-          <div><div class="stat__value">185</div><div class="stat__label">Units</div></div>
+          <div><div class="stat__value">5</div><div class="stat__label">Stories</div></div>
+          <div><div class="stat__value">133</div><div class="stat__label">Units</div></div>
           <div><div class="stat__value">195K</div><div class="stat__label">Sq Ft</div></div>
         </div>
       </div>
@@ -705,6 +856,13 @@
   const emptyEl = document.getElementById('projectsEmpty');
   const active  = { stage: new Set(), involvement: new Set(), type: new Set() };
 
+  const POS = ['pcard--p1','pcard--p2','pcard--p3','pcard--p4'];
+
+  function assignPositions(visibleCards) {
+    cards.forEach(c => c.classList.remove(...POS));
+    visibleCards.forEach((c, i) => { if (i < 4) c.classList.add(POS[i]); });
+  }
+
   function applyFilters() {
     document.querySelectorAll('.filter-group').forEach(grp => {
       const g = grp.dataset.group;
@@ -712,24 +870,61 @@
       if (allBtn) allBtn.classList.toggle('is-active', active[g].size === 0);
     });
 
-    let visible = 0;
+    const toShow = [], toHide = [];
     cards.forEach(card => {
       const stage       = card.dataset.stage;
       const involvement = card.dataset.involvement;
       const types       = card.dataset.type.split(' ');
-
       const stageOk = active.stage.size === 0       || active.stage.has(stage);
       const invOk   = active.involvement.size === 0 || active.involvement.has(involvement);
       const typeOk  = active.type.size === 0        || [...active.type].some(t => types.includes(t));
-
-      const show = stageOk && invOk && typeOk;
-      card.classList.toggle('is-hidden', !show);
-      if (show) visible++;
+      (stageOk && invOk && typeOk ? toShow : toHide).push(card);
     });
 
-    countEl.textContent = visible === 1 ? '1 Project' : `${visible} Projects`;
-    emptyEl.classList.toggle('is-visible', visible === 0);
+    // Fade out every visible card
+    cards.forEach(card => {
+      if (!card.classList.contains('is-hidden')) {
+        card.classList.remove('is-showing');
+        card.classList.add('is-hiding');
+      }
+    });
+
+    setTimeout(() => {
+      // Everything is invisible — safely hide filtered cards and reassign slots
+      toHide.forEach(c => { c.classList.add('is-hidden'); c.classList.remove('is-hiding'); });
+      assignPositions(toShow);
+
+      // Fade remaining cards back in
+      toShow.forEach(c => {
+        c.classList.remove('is-hidden', 'is-hiding');
+        c.classList.add('is-showing');
+      });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        toShow.forEach(c => c.classList.remove('is-showing'));
+      }));
+    }, 450);
+
+    countEl.textContent = toShow.length === 1 ? '1 Project' : `${toShow.length} Projects`;
+    emptyEl.classList.toggle('is-visible', toShow.length === 0);
+    updateResetVisibility();
   }
+
+  // Init positions on load
+  assignPositions([...cards]);
+
+  // Reset button — show when any filter active, clear all on click
+  const resetBtn    = document.getElementById('filtersReset');
+  const resetFooter = document.getElementById('filtersFooter');
+  function updateResetVisibility() {
+    const anyActive = active.stage.size > 0 || active.involvement.size > 0 || active.type.size > 0;
+    resetFooter.classList.toggle('is-visible', anyActive);
+  }
+  resetBtn.addEventListener('click', () => {
+    active.stage.clear(); active.involvement.clear(); active.type.clear();
+    document.querySelectorAll('.filter-opt').forEach(o => o.classList.remove('is-active'));
+    document.querySelectorAll('.filter-opt--all').forEach(o => o.classList.add('is-active'));
+    applyFilters();
+  });
 
   document.querySelectorAll('.filter-opt').forEach(opt => {
     opt.addEventListener('click', () => {

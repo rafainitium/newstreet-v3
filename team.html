@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team — Newstreet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Murecho:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET / VARS
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  :root {
+    --bg: #efece6;
+    --ink: #0e0e0e;
+    --ink-soft: #4a4a4a;
+    --line: rgba(0,0,0,0.12);
+    --dark: #161616;
+    --ls-display: -0.075em;
+    --ls-headline: -0.06em;
+    --ls-body: -0.038em;
+    --ls-small: -0.02em;
+    --ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  img, video { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ============================================================
+     NAV
+     ============================================================ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    color: #fff;
+    opacity: 0;
+    transition: padding 0.5s var(--ease), opacity 0.8s ease 0.1s;
+  }
+  body.is-ready .nav { opacity: 1; }
+  .nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(18, 18, 18, 0.78);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    transform: translateY(-100%);
+    transition: transform 0.6s var(--ease);
+    z-index: -1;
+  }
+  .nav::after {
+    content: '';
+    position: absolute;
+    left: 50%; right: 50%; bottom: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.18);
+    transition: left 0.7s var(--ease) 0.1s, right 0.7s var(--ease) 0.1s;
+  }
+  .nav.is-scrolled::before { transform: translateY(0); }
+  .nav.is-scrolled::after  { left: 0; right: 0; }
+  .nav.is-scrolled { padding: 16px 32px; }
+  .nav__brand {
+    font-size: 19px; font-weight: 700;
+    letter-spacing: var(--ls-display); line-height: 1; z-index: 1;
+  }
+  .nav__brand .street { font-weight: 200; }
+  .nav__links { display: flex; gap: 30px; z-index: 1; }
+  .nav__link {
+    position: relative;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase; padding: 8px 0;
+  }
+  .nav__link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link:hover::after { transform: scaleX(1); }
+  .nav__link.is-active::after { transform: scaleX(1); opacity: 0.55; }
+  .nav__item--dropdown { position: relative; }
+  .nav__link--trigger {
+    background: none; border: none; color: inherit;
+    font-family: inherit; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 8px 0; display: inline-flex; align-items: center; gap: 7px;
+    position: relative;
+  }
+  .nav__link--trigger::after {
+    content: ''; position: absolute; left: 0; right: 18px; bottom: 2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link--trigger:hover::after { transform: scaleX(1); }
+  .nav__link--trigger.is-active::after { transform: scaleX(1); opacity: 0.55; }
+  .nav__caret {
+    font-size: 8px; opacity: 0.6; display: inline-block;
+    transition: transform 0.3s var(--ease);
+  }
+  .nav__item--dropdown:hover .nav__caret,
+  .nav__item--dropdown:focus-within .nav__caret { transform: rotate(180deg); }
+  .nav__dropdown {
+    position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    margin-top: 12px;
+    background: rgba(18,18,18,0.94);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    padding: 18px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+    min-width: 200px;
+  }
+  .nav__dropdown::before {
+    content: ''; position: absolute; bottom: 100%; left: 0; right: 0; height: 14px;
+  }
+  .nav__item--dropdown:hover .nav__dropdown,
+  .nav__item--dropdown:focus-within .nav__dropdown {
+    opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0);
+  }
+  .nav__dropdown-link {
+    position: relative;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.22em;
+    text-transform: uppercase; white-space: nowrap; color: #fff; padding: 2px 0;
+  }
+  .nav__dropdown-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__dropdown-link:hover::after,
+  .nav__dropdown-link.is-active::after { transform: scaleX(1); }
+
+  /* ============================================================
+     HERO — CAROUSEL
+     ============================================================ */
+  .team-hero {
+    position: relative;
+    height: 88vh;
+    min-height: 580px;
+    overflow: hidden;
+    background: var(--dark);
+  }
+
+  /* Carousel slides */
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.4s ease;
+    background-size: cover;
+    background-position: center;
+  }
+  .hero-slide.is-active { opacity: 1; }
+
+  /* Gradient overlay (mirrors project pages) */
+  .team-hero__overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg,
+        rgba(0,0,0,0.22) 0%,
+        rgba(0,0,0,0)    22%,
+        rgba(0,0,0,0)    50%,
+        rgba(0,0,0,0.65) 100%);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.1s ease;
+  }
+  body.is-ready .team-hero__overlay { opacity: 1; }
+
+  /* Title block */
+  .team-hero__label {
+    position: absolute;
+    left: 48px; bottom: 54px;
+    color: #fff;
+    z-index: 3;
+  }
+  .team-hero__label > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
+  }
+  body.is-ready .team-hero__eyebrow { opacity: 1; transform: translateY(0); transition-delay: 0.25s; }
+  body.is-ready .team-hero__title   { opacity: 1; transform: translateY(0); transition-delay: 0.38s; }
+
+  .team-hero__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 18px;
+  }
+  .team-hero__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(48px, 6.5vw, 100px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+  }
+
+
+  /* ============================================================
+     INTRO — tagline + copy
+     ============================================================ */
+  .team-intro {
+    padding: 130px 36px 100px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .team-intro__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.45fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .team-intro__tagline {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(28px, 3.8vw, 58px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.96;
+  }
+  .team-intro__body {
+    font-size: clamp(13px, 1.25vw, 30px);
+    line-height: 1.45;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    color: var(--ink);
+  }
+
+  /* ============================================================
+     TEAM GRID
+     ============================================================ */
+  .team-section {
+    padding: 0 36px 140px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .team-section__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Row groups — each holds 3 cards + a drawer */
+  .member-row-group { margin-bottom: 0; }
+
+  .member-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 0;
+  }
+
+  /* Individual card */
+  .member-card {
+    position: relative;
+    cursor: pointer;
+  }
+  .member-card__photo {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #d0cec9;
+  }
+  .member-card__photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform 1.1s var(--ease-out);
+    filter: grayscale(15%);
+  }
+  .member-card:hover .member-card__photo img { transform: scale(1.04); }
+
+  /* Placeholder photo when no image */
+  .member-card__photo-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(160deg, #d8d4cc 0%, #c4bfb5 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .member-card__photo-placeholder svg {
+    opacity: 0.25;
+    width: 60px; height: 60px;
+  }
+
+  .member-card__info {
+    padding: 18px 0 0;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .member-card__text { flex: 1; }
+  .member-card__name {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(18px, 1.6vw, 24px);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  .member-card__role {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+
+  /* Expand button */
+  .member-card__toggle {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 200;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+    margin-top: 4px;
+    transition: background 0.35s var(--ease), border-color 0.35s var(--ease),
+                color 0.35s var(--ease), transform 0.45s var(--ease);
+  }
+  .member-card__toggle:hover { border-color: var(--ink); }
+  .member-card.is-open .member-card__toggle {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--bg);
+    transform: rotate(45deg);
+  }
+
+  /* Bio drawer */
+  .member-drawer {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.7s var(--ease-out), opacity 0.5s var(--ease-out),
+                margin 0.5s var(--ease-out);
+    opacity: 0;
+    border-top: 0px solid var(--line);
+    margin-top: 0;
+  }
+  .member-drawer.is-open {
+    max-height: 700px;
+    opacity: 1;
+    border-top: 1px solid var(--line);
+    margin-top: 36px;
+    margin-bottom: 48px;
+  }
+  .member-drawer__inner {
+    padding: 48px 0 24px;
+    display: grid;
+    grid-template-columns: 1fr 1.8fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .member-drawer__name-block {}
+  .member-drawer__name {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(24px, 2.5vw, 40px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.95;
+    margin-bottom: 10px;
+  }
+  .member-drawer__role {
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+  .member-drawer__bio {
+    font-size: clamp(13px, 1.25vw, 30px);
+    line-height: 1.45;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    color: var(--ink-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Divider between row groups */
+  .member-row-group + .member-row-group {
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+    margin-top: 40px;
+  }
+  .member-row-group + .member-row-group.no-top-border { border-top: none; padding-top: 0; }
+
+  /* ============================================================
+     FOOTER
+     ============================================================ */
+  .footer {
+    padding: 56px 36px 40px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: var(--ls-small);
+    opacity: 0.7;
+  }
+
+  /* ============================================================
+     REVEAL
+     ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.12s; }
+  .reveal.delay-2 { transition-delay: 0.24s; }
+  .reveal.delay-3 { transition-delay: 0.36s; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 1024px) {
+    .team-intro__inner { grid-template-columns: 1fr; gap: 40px; }
+    .member-drawer__inner { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 768px) {
+    .nav { padding: 16px 22px; }
+    .nav.is-scrolled { padding: 12px 22px; }
+    .nav__links { gap: 16px; }
+    .nav__link, .nav__link--trigger { font-size: 10px; letter-spacing: 0.18em; }
+    .team-hero__label { left: 24px; bottom: 36px; }
+    .hero-dots { right: 24px; bottom: 40px; }
+    .hero-arrows { right: 24px; bottom: 90px; }
+    .team-intro { padding: 80px 22px 60px; }
+    .team-section { padding: 0 22px 80px; }
+    .member-row { grid-template-columns: 1fr 1fr; gap: 16px; }
+    .footer { padding: 36px 22px; }
+  }
+  @media (max-width: 500px) {
+    .member-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">new<span class="street">street</span></a>
+  <div class="nav__links">
+    <a class="nav__link" href="projects.html">Projects</a>
+    <div class="nav__item nav__item--dropdown">
+      <button class="nav__link--trigger is-active" type="button" aria-expanded="false">
+        Firm <span class="nav__caret">▾</span>
+      </button>
+      <div class="nav__dropdown">
+        <a class="nav__dropdown-link" href="about.html">About the Firm</a>
+        <a class="nav__dropdown-link is-active" href="team.html">Team</a>
+      </div>
+    </div>
+    <a class="nav__link" href="index.html#partners">Partners</a>
+    <a class="nav__link" href="index.html#press">Press</a>
+    <a class="nav__link" href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO — CAROUSEL
+     ============================================================ -->
+<section class="team-hero" id="teamHero">
+
+  <!-- Slides — swap src for real photos when ready -->
+  <div class="hero-slide is-active" style="background-color: #1a1a1a; background-image: url('Team/Gallery/P1098935.jpg'); background-size: cover; background-position: center;"></div>
+  <div class="hero-slide" style="background-color: #1e1c18; background-image: url('');"></div>
+  <div class="hero-slide" style="background-color: #171515; background-image: url('');"></div>
+
+  <div class="team-hero__overlay"></div>
+
+  <div class="team-hero__label">
+    <div class="team-hero__eyebrow">Newstreet</div>
+    <h1 class="team-hero__title">Meet the Team</h1>
+  </div>
+
+
+</section>
+
+<!-- ============================================================
+     INTRO — Tagline + Copy
+     ============================================================ -->
+<section class="team-intro">
+  <div class="team-intro__inner">
+    <h2 class="team-intro__tagline reveal">
+      The People of Newstreet.<br>
+    </h2>
+    <div class="team-intro__body reveal delay-1">
+      <p>
+        Our people are the firm. At Newstreet, we believe that great real estate is built by the conviction, creativity, and relentless work ethic of the individuals behind every decision.
+      </p>
+      <p>
+        We've assembled a team that combines deep market knowledge with institutional-grade execution. Every member brings something irreplaceable to the table, and together, we move faster, think sharper, and build better than anyone operating at our scale.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TEAM GRID
+     ============================================================ -->
+<section class="team-section">
+
+  <div class="team-section__eyebrow reveal">Our Team</div>
+
+  <!-- Row 1 — only row -->
+  <div class="member-row-group" data-row="0">
+    <div class="member-row">
+
+      <!-- Alex Milanoski -->
+      <div class="member-card reveal" data-member="alex" data-row="0">
+        <div class="member-card__photo">
+          <img src="Team/Headshots/Alex.jpg" alt="Alex Milanoski" loading="lazy">
+        </div>
+        <div class="member-card__info">
+          <div class="member-card__text">
+            <div class="member-card__name">Alex Milanoski</div>
+            <div class="member-card__role">Partner</div>
+          </div>
+          <button class="member-card__toggle" aria-label="Expand bio">+</button>
+        </div>
+      </div>
+
+      <!-- Kyle Ruperto -->
+      <div class="member-card reveal delay-1" data-member="kyle" data-row="0">
+        <div class="member-card__photo">
+          <div class="member-card__photo-placeholder">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="22" r="12" fill="currentColor"/>
+              <path d="M6 54c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div class="member-card__info">
+          <div class="member-card__text">
+            <div class="member-card__name">Kyle Ruperto</div>
+            <div class="member-card__role">Project Manager</div>
+          </div>
+          <button class="member-card__toggle" aria-label="Expand bio">+</button>
+        </div>
+      </div>
+
+      <!-- Rafael Villasenor -->
+      <div class="member-card reveal delay-2" data-member="rafael" data-row="0">
+        <div class="member-card__photo">
+          <div class="member-card__photo-placeholder">
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="30" cy="22" r="12" fill="currentColor"/>
+              <path d="M6 54c0-13.255 10.745-24 24-24s24 10.745 24 24" fill="currentColor"/>
+            </svg>
+          </div>
+        </div>
+        <div class="member-card__info">
+          <div class="member-card__text">
+            <div class="member-card__name">Rafael Villasenor</div>
+            <div class="member-card__role">Analyst</div>
+          </div>
+          <button class="member-card__toggle" aria-label="Expand bio">+</button>
+        </div>
+      </div>
+
+    </div><!-- .member-row -->
+
+    <!-- Drawer for Row 0 -->
+    <div class="member-drawer" id="drawer-row-0">
+      <div class="member-drawer__inner"></div>
+    </div>
+
+  </div><!-- .member-row-group -->
+
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div>© Newstreet 2026</div>
+  <div>Chicago, IL</div>
+</footer>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script>
+  /* ---- Page ready ---- */
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => {
+      document.body.classList.add('is-ready');
+    });
+  });
+
+  /* ---- Nav scroll ---- */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  /* ---- Hero carousel ---- */
+  const slides = document.querySelectorAll('.hero-slide');
+  let current  = 0;
+  let autoTimer;
+
+  function goTo(idx) {
+    slides[current].classList.remove('is-active');
+    current = (idx + slides.length) % slides.length;
+    slides[current].classList.add('is-active');
+  }
+
+  function startAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => goTo(current + 1), 7000);
+  }
+
+  startAuto();
+
+  /* ---- Reveal on scroll ---- */
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  /* ---- Team member bios ---- */
+  const bios = {
+    alex: {
+      name: 'Alex Milanoski',
+      role: 'Partner',
+      bio: [
+        'Alex Milanoski has been at the helm of Newstreet since its founding, overseeing all aspects of acquisitions, development strategy, and capitalization. He works closely with institutional equity partners, lenders, and municipal stakeholders to structure deals that are both financially sound and architecturally meaningful.',
+        'Prior to founding Newstreet, Alex spent several years in institutional real estate finance, where he developed a rigorous understanding of how capital is deployed across complex urban developments. That foundation informs every investment decision the firm makes today.',
+        'Alex holds a [degree] from [university] and a [degree] from [university].'
+      ]
+    },
+    kyle: {
+      name: 'Kyle Ruperto',
+      role: 'Project Manager',
+      bio: [
+        'Kyle Ruperto lorem ipsum dolor sit amet, consectetur adipiscing elit. He oversees all financial and operational functions of Newstreet, working closely with lenders, equity partners, and service providers to build the right capital structures for each project.',
+        'Prior to joining Newstreet, Kyle consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+        'Kyle holds a [degree] from [university] and a [degree] from [university].'
+      ]
+    },
+    rafael: {
+      name: 'Rafael Villasenor',
+      role: 'Analyst',
+      bio: [
+        'Rafael Villasenor lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. He manages the day-to-day execution of Newstreet\'s development pipeline, from entitlements through construction completion.',
+        'Before joining Newstreet, Rafael ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.',
+        'Rafael holds a [degree] from [university].'
+      ]
+    },
+  };
+
+  let openDrawer   = null; // currently open drawer element
+  let openCard     = null; // currently open card element
+
+  function closeDrawer() {
+    if (openDrawer) {
+      openDrawer.classList.remove('is-open');
+      openDrawer = null;
+    }
+    if (openCard) {
+      openCard.classList.remove('is-open');
+      openCard = null;
+    }
+  }
+
+  function openMember(card, drawerId, memberId) {
+    const drawer = document.getElementById(drawerId);
+    const data   = bios[memberId];
+    if (!data) return;
+
+    // If clicking the already-open card → close
+    if (openCard === card) { closeDrawer(); return; }
+
+    // Close previous
+    closeDrawer();
+
+    // Populate drawer
+    drawer.querySelector('.member-drawer__inner').innerHTML = `
+      <div class="member-drawer__name-block">
+        <div class="member-drawer__name">${data.name}</div>
+        <div class="member-drawer__role">${data.role}</div>
+      </div>
+      <div class="member-drawer__bio">
+        ${data.bio.map(p => `<p>${p}</p>`).join('')}
+      </div>
+    `;
+
+    // Open
+    drawer.classList.add('is-open');
+    card.classList.add('is-open');
+    openDrawer = drawer;
+    openCard   = card;
+
+    // Scroll card into view smoothly
+    setTimeout(() => {
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  }
+
+  document.querySelectorAll('.member-card').forEach(card => {
+    const toggle   = card.querySelector('.member-card__toggle');
+    const memberId = card.dataset.member;
+    const rowIdx   = card.dataset.row;
+    const drawerId = `drawer-row-${rowIdx}`;
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openMember(card, drawerId, memberId);
+    });
+    // Also allow clicking the card photo area
+    card.querySelector('.member-card__photo').addEventListener('click', () => {
+      openMember(card, drawerId, memberId);
+    });
+  });
+</script>
+
+</body>
+</html>

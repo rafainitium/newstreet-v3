@@ -412,24 +412,88 @@
     transition: transform 1.1s var(--ease-out),
                 filter   1.1s var(--ease-out);
   }
-  .project:hover .project__img { transform: scale(1.045); filter: brightness(0.85); }
+  .project:hover .project__img { transform: scale(1.045); filter: brightness(0.68); }
   .project::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 50%);
+    background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0) 100%);
     z-index: 1;
     pointer-events: none;
   }
   .project__label {
     position: absolute;
     left: 22px;
-    bottom: 18px;
+    bottom: 20px;
     color: #fff;
     z-index: 2;
-    transition: transform 0.6s var(--ease-out);
+    transition: transform 0.55s var(--ease-out);
   }
-  .project:hover .project__label { transform: translateY(-6px); }
+  .project:hover .project__label { transform: translateY(-108px); }
+
+  .project__details {
+    position: absolute;
+    left: 0; right: 0;
+    bottom: 0;
+    padding: 16px 22px 20px;
+    z-index: 3;
+    color: #fff;
+    transform: translateY(100%);
+    transition: transform 0.52s var(--ease-out);
+  }
+  .project:hover .project__details { transform: translateY(0); }
+
+  .project__tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .project__tag {
+    display: inline-flex;
+    align-items: center;
+    opacity: 0.85;
+  }
+  .project__tag-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    margin-right: 7px;
+  }
+  .project__tag-sep { opacity: 0.35; font-weight: 400; }
+  .project__tag--pre          { color: #c5c5c5; }
+  .project__tag--construction { color: #ff9a55; }
+  .project__tag--completed    { color: #6ee7a0; }
+
+  .project__stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    padding-top: 12px;
+  }
+  .project__stat-value {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(16px, 1.4vw, 22px);
+    font-weight: 400;
+    letter-spacing: -0.055em;
+    line-height: 1;
+    margin-bottom: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .project__stat-label {
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    font-weight: 500;
+  }
   .project__label-title {
     font-family: 'Murecho', sans-serif;
     font-size: clamp(20px, 2vw, 28px);
@@ -823,7 +887,6 @@
         <a class="nav__dropdown-link" href="team.html">Team</a>
       </div>
     </div>
-    <a class="nav__link" href="#approach">Approach</a>
     <a class="nav__link" href="#partners">Partners</a>
     <a class="nav__link" href="#press">Press</a>
     <a class="nav__link" href="#contact">Contact</a>
@@ -864,15 +927,47 @@
       <div class="project__arrow">↗</div>
       <div class="project__label">
         <div class="project__label-title">The Arris</div>
-        <div class="project__label-city">Chicago</div>
+        <div class="project__label-city">Lincoln Park · Chicago</div>
+      </div>
+      <div class="project__details">
+        <div class="project__tags">
+          <span class="project__tag project__tag--construction">
+            <span class="project__tag-dot"></span>Under Construction
+          </span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Developer</span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Mixed-Use</span>
+        </div>
+        <div class="project__stats">
+          <div><div class="project__stat-value">5</div><div class="project__stat-label">Stories</div></div>
+          <div><div class="project__stat-value">48</div><div class="project__stat-label">Units</div></div>
+          <div><div class="project__stat-value">47.5K</div><div class="project__stat-label">Sq Ft</div></div>
+        </div>
       </div>
     </a>
     <a class="project project--clark reveal delay-1" href="#">
-      <img class="project__img" src="1165Blurred.png" alt="1165Clark, Chicago">
+      <img class="project__img" src="1165Blurred.png" alt="1165 N Clark, Chicago">
       <div class="project__arrow">↗</div>
       <div class="project__label">
-        <div class="project__label-title">1165Clark</div>
-        <div class="project__label-city">Chicago</div>
+        <div class="project__label-title">1165 N Clark</div>
+        <div class="project__label-city">Gold Coast · Chicago</div>
+      </div>
+      <div class="project__details">
+        <div class="project__tags">
+          <span class="project__tag project__tag--pre">
+            <span class="project__tag-dot"></span>Pre-Development
+          </span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Developer</span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Mixed-Use</span>
+        </div>
+        <div class="project__stats">
+          <div><div class="project__stat-value">7</div><div class="project__stat-label">Stories</div></div>
+          <div><div class="project__stat-value">71</div><div class="project__stat-label">Units</div></div>
+          <div><div class="project__stat-value">92.2K</div><div class="project__stat-label">Sq Ft</div></div>
+        </div>
       </div>
     </a>
     <a class="project project--wells reveal delay-2" href="200wo.html">
@@ -880,7 +975,23 @@
       <div class="project__arrow">↗</div>
       <div class="project__label">
         <div class="project__label-title">200 W Ohio</div>
-        <div class="project__label-city">Chicago</div>
+        <div class="project__label-city">River North · Chicago</div>
+      </div>
+      <div class="project__details">
+        <div class="project__tags">
+          <span class="project__tag project__tag--pre">
+            <span class="project__tag-dot"></span>Pre-Development
+          </span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Developer</span>
+          <span class="project__tag-sep">·</span>
+          <span class="project__tag">Mixed-Use</span>
+        </div>
+        <div class="project__stats">
+          <div><div class="project__stat-value">5</div><div class="project__stat-label">Stories</div></div>
+          <div><div class="project__stat-value">133</div><div class="project__stat-label">Units</div></div>
+          <div><div class="project__stat-value">195K</div><div class="project__stat-label">Sq Ft</div></div>
+        </div>
       </div>
     </a>
     <a class="project project--small1 reveal delay-1" href="#">

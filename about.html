@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About the Firm — Newstreet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Murecho:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     RESET / VARS  (matches index/about typography system)
+     ============================================================ */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  :root {
+    --bg: #efece6;
+    --ink: #0e0e0e;
+    --ink-soft: #4a4a4a;
+    --line: rgba(0,0,0,0.12);
+    --dark: #161616;
+    --dark-soft: #1e1e1e;
+    --ls-display: -0.075em;
+    --ls-headline: -0.06em;
+    --ls-body: -0.038em;
+    --ls-small: -0.02em;
+    --ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  img, video { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ============================================================
+     NAV — same system as index/projects/team
+     ============================================================ */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 32px;
+    color: #fff;
+    opacity: 0;
+    transition: padding 0.5s var(--ease), opacity 0.8s ease 0.1s;
+  }
+  body.is-ready .nav { opacity: 1; }
+  .nav::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(18, 18, 18, 0.78);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    transform: translateY(-100%);
+    transition: transform 0.6s var(--ease);
+    z-index: -1;
+  }
+  .nav::after {
+    content: '';
+    position: absolute;
+    left: 50%; right: 50%; bottom: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.18);
+    transition: left 0.7s var(--ease) 0.1s, right 0.7s var(--ease) 0.1s;
+  }
+  .nav.is-scrolled::before { transform: translateY(0); }
+  .nav.is-scrolled::after  { left: 0; right: 0; }
+  .nav.is-scrolled { padding: 16px 32px; }
+  .nav__brand {
+    font-size: 19px; font-weight: 700;
+    letter-spacing: var(--ls-display); line-height: 1; z-index: 1;
+  }
+  .nav__brand .street { font-weight: 200; }
+  .nav__links { display: flex; gap: 30px; z-index: 1; }
+  .nav__link {
+    position: relative;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase; padding: 8px 0;
+  }
+  .nav__link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: 2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link:hover::after { transform: scaleX(1); }
+  .nav__link.is-active::after { transform: scaleX(1); opacity: 0.55; }
+  .nav__item--dropdown { position: relative; }
+  .nav__link--trigger {
+    background: none; border: none; color: inherit;
+    font-family: inherit; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    padding: 8px 0; display: inline-flex; align-items: center; gap: 7px;
+    position: relative;
+  }
+  .nav__link--trigger::after {
+    content: ''; position: absolute; left: 0; right: 18px; bottom: 2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .nav__link--trigger:hover::after { transform: scaleX(1); }
+  .nav__link--trigger.is-active::after { transform: scaleX(1); opacity: 0.55; }
+  .nav__caret {
+    font-size: 8px; opacity: 0.6; display: inline-block;
+    transition: transform 0.3s var(--ease);
+  }
+  .nav__item--dropdown:hover .nav__caret,
+  .nav__item--dropdown:focus-within .nav__caret { transform: rotate(180deg); }
+  .nav__dropdown {
+    position: absolute; top: 100%; left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    margin-top: 12px;
+    background: rgba(18,18,18,0.94);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    padding: 18px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.28s var(--ease), transform 0.28s var(--ease);
+    min-width: 200px;
+  }
+  .nav__dropdown::before {
+    content: ''; position: absolute; bottom: 100%; left: 0; right: 0; height: 14px;
+  }
+  .nav__item--dropdown:hover .nav__dropdown,
+  .nav__item--dropdown:focus-within .nav__dropdown {
+    opacity: 1; pointer-events: all; transform: translateX(-50%) translateY(0);
+  }
+  .nav__dropdown-link {
+    position: relative;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.22em;
+    text-transform: uppercase; white-space: nowrap; color: #fff; padding: 2px 0;
+  }
+  .nav__dropdown-link::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -2px;
+    height: 1px; background: currentColor;
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.35s var(--ease);
+  }
+  .nav__dropdown-link:hover::after,
+  .nav__dropdown-link.is-active::after { transform: scaleX(1); }
+
+  /* ============================================================
+     HERO
+     ============================================================ */
+  .about-hero {
+    position: relative;
+    height: 92vh;
+    min-height: 600px;
+    overflow: hidden;
+    background: var(--dark);
+  }
+  .about-hero__video {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center;
+  }
+  .about-hero__overlay {
+    position: absolute; inset: 0;
+    background:
+      linear-gradient(180deg,
+        rgba(0,0,0,0.30) 0%,
+        rgba(0,0,0,0)    20%,
+        rgba(0,0,0,0)    52%,
+        rgba(0,0,0,0.78) 100%);
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  body.is-ready .about-hero__overlay { opacity: 1; }
+  .about-hero__label {
+    position: absolute;
+    left: 56px; bottom: 56px;
+    color: #fff;
+    z-index: 3;
+  }
+  .about-hero__label > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.95s var(--ease-out), transform 0.95s var(--ease-out);
+  }
+  body.is-ready .about-hero__eyebrow { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+  body.is-ready .about-hero__title   { opacity: 1; transform: translateY(0); transition-delay: 0.45s; }
+  .about-hero__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 18px;
+  }
+  .about-hero__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(50px, 7vw, 108px);
+    font-weight: 400;
+    letter-spacing: -0.075em;
+    line-height: 0.9;
+  }
+
+  /* ============================================================
+     STANDARD STATEMENT — "A new standard of development."
+     ============================================================ */
+  .standard {
+    padding: 140px 56px 110px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .standard__inner {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 100px;
+    align-items: start;
+  }
+  .standard__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(34px, 4.2vw, 64px);
+    font-weight: 400;
+    letter-spacing: -0.075em;
+    line-height: 0.96;
+  }
+  .standard__body {
+    font-size: clamp(14px, 1.25vw, 22px);
+    line-height: 1.5;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    color: var(--ink-soft);
+    padding-top: 8px;
+  }
+  .standard__body strong { color: var(--ink); font-weight: 400; }
+  .standard__body--intro {
+    font-size: clamp(13px, 1.25vw, 30px);
+    line-height: 1.45;
+    color: var(--ink);
+  }
+
+  /* ============================================================
+     VALUES
+     ============================================================ */
+  .values {
+    padding: 30px 56px 150px;
+    max-width: 1500px;
+    margin: 0 auto;
+  }
+  .values__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 56px;
+  }
+  .values__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px;
+  }
+  .value-card__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(24px, 2.8vw, 40px);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 1.02;
+    margin-bottom: 26px;
+  }
+  .value-card__body {
+    font-size: clamp(13px, 1.1vw, 16px);
+    line-height: 1.7;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    color: var(--ink-soft);
+  }
+
+  /* ============================================================
+     ADVANTAGE CARD — dark, full-bleed, with half-wheel on right
+     ============================================================ */
+  .advantage {
+    background: var(--dark);
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .advantage__inner {
+    /* Asymmetric layout: copy column aligned with the 1500px content grid on the left,
+       wheel column extends all the way to the viewport's right edge with no padding. */
+    max-width: none;
+    margin: 0;
+    padding-top: 88px;
+    padding-bottom: 88px;
+    padding-left: max(56px, calc((100% - 1500px) / 2 + 56px));
+    padding-right: 0;
+    display: grid;
+    grid-template-columns: minmax(380px, 640px) minmax(420px, 1fr);
+    gap: 60px;
+    align-items: center;
+  }
+  .advantage__copy {
+    display: flex;
+    flex-direction: column;
+    max-width: 520px;
+  }
+  .advantage__eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 36px;
+  }
+  .advantage__title {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(40px, 5.2vw, 78px);
+    font-weight: 400;
+    letter-spacing: -0.075em;
+    line-height: 0.94;
+    margin-bottom: 36px;
+  }
+  .advantage__body {
+    font-size: clamp(14px, 1.15vw, 18px);
+    line-height: 1.65;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    color: rgba(255,255,255,0.65);
+    max-width: 460px;
+  }
+
+  /* Controls */
+  .advantage__controls {
+    margin-top: 56px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .wheel-btn {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.22);
+    background: transparent;
+    color: rgba(255,255,255,0.75);
+    font-size: 17px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.3s var(--ease), background 0.3s var(--ease),
+                color 0.3s var(--ease), transform 0.25s var(--ease);
+  }
+  .wheel-btn:hover  { border-color: rgba(255,255,255,0.85); color: #fff; }
+  .wheel-btn:active { transform: scale(0.94); }
+  .wheel-counter {
+    margin-left: 12px;
+    font-family: 'Murecho', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.6);
+    font-variant-numeric: tabular-nums;
+    display: inline-flex; align-items: baseline; gap: 6px;
+  }
+  .wheel-counter__current { color: #fff; font-weight: 500; }
+
+  /* ============================================================
+     HALF-WHEEL CAROUSEL
+     ============================================================ */
+  .wheel-stage {
+    position: relative;
+    height: 540px;
+    align-self: center;
+    /* Clip the right half of the wheel — only the visible LEFT half should render. */
+    overflow: hidden;
+  }
+  /* Arc guide — diameter == stage height, center at right edge so only the LEFT HALF is visible */
+  .wheel-arc {
+    position: absolute;
+    right: -270px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 540px;
+    height: 540px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.10);
+    pointer-events: none;
+  }
+  .wheel-arc--inner {
+    width: 430px;
+    height: 430px;
+    right: -215px;
+    border-color: rgba(255,255,255,0.05);
+  }
+  /* The wheel itself — items rotate around a center off to the right */
+  .wheel {
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+  }
+  .wheel__center {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 0; height: 0;
+  }
+  .wheel__item {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 400px;
+    transform-origin: 100% 0%;
+    /* angle on the circle: 0 = west (active), positive = clockwise (north→east→south→west) */
+    --angle: 0deg;
+    --radius: 270px;
+    /* Rotate around the center (top-right), translate outward "west", then counter-rotate */
+    transform:
+      rotate(var(--angle))
+      translate(calc(-1 * var(--radius)), 0)
+      rotate(calc(-1 * var(--angle)));
+    transition:
+      transform 0.95s var(--ease),
+      opacity 0.45s var(--ease);
+    will-change: transform;
+    /* Default = fully hidden; only active + nearest neighbors are revealed */
+    opacity: 0;
+    pointer-events: none;
+  }
+  .wheel__item.is-near {
+    opacity: 0.42;
+    pointer-events: auto;
+  }
+  .wheel__item.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .wheel__item-inner {
+    transform: translateY(-50%);
+    padding-left: 6px;
+    /* shift inner so the active item sits centered, not anchored at top-right corner */
+  }
+
+  /* Item typography — sized for legibility, both active and previews */
+  .wheel__item .item-title {
+    font-family: 'Murecho', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 10px;
+    transition: font-size 0.6s var(--ease);
+    display: flex; align-items: center; gap: 13px;
+  }
+  .wheel__item.is-active .item-title {
+    font-size: 30px;
+    margin-bottom: 14px;
+  }
+  .wheel__item .item-icon {
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    color: rgba(255,255,255,0.85);
+    transition: width 0.6s var(--ease), height 0.6s var(--ease);
+  }
+  .wheel__item.is-active .item-icon {
+    width: 32px; height: 32px;
+  }
+  .wheel__item .item-icon svg {
+    width: 100%; height: 100%;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.4;
+  }
+  .wheel__item .item-body {
+    font-size: 13.5px;
+    line-height: 1.55;
+    letter-spacing: var(--ls-body);
+    font-weight: 300;
+    color: rgba(255,255,255,0.62);
+    max-width: 320px;
+    transition: font-size 0.6s var(--ease), color 0.6s var(--ease);
+  }
+  .wheel__item.is-active .item-body {
+    font-size: 15.5px;
+    color: rgba(255,255,255,0.78);
+    max-width: 360px;
+  }
+  /* Active item gets a subtle left bar */
+  .wheel__item .item-bar {
+    position: absolute;
+    left: -20px; top: 50%;
+    height: 0;
+    width: 1px;
+    background: rgba(255,255,255,0.7);
+    transform: translateY(-50%);
+    transition: height 0.5s var(--ease);
+  }
+  .wheel__item.is-active .item-bar { height: 48px; }
+
+  /* ============================================================
+     STANDARD --future / blended forward + work-with-us
+     ============================================================ */
+  .standard--future { padding-bottom: 150px; }
+  .standard--future .standard__body {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .standard__btn {
+    align-self: flex-start;
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 30px 18px 32px;
+    background: var(--ink);
+    color: var(--bg);
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    transition: gap 0.35s var(--ease), background 0.3s var(--ease), transform 0.25s var(--ease);
+  }
+  .standard__btn:hover { gap: 20px; background: #2a2a2a; transform: translateY(-1px); }
+  .standard__btn .arrow {
+    display: inline-block;
+    font-size: 14px;
+    letter-spacing: 0;
+    transition: transform 0.35s var(--ease);
+  }
+  .standard__btn:hover .arrow { transform: translateX(2px); }
+
+  /* ============================================================
+     FOOTER — matches index/projects/team
+     ============================================================ */
+  .footer {
+    padding: 56px 36px 40px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    letter-spacing: var(--ls-small);
+    opacity: 0.7;
+  }
+
+  /* ============================================================
+     REVEAL
+     ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 1.1s var(--ease-out), transform 1.1s var(--ease-out);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.12s; }
+  .reveal.delay-2 { transition-delay: 0.24s; }
+  .reveal.delay-3 { transition-delay: 0.36s; }
+  .reveal.delay-4 { transition-delay: 0.48s; }
+
+  /* ============================================================
+     RESPONSIVE
+     ============================================================ */
+  @media (max-width: 1100px) {
+    .standard__inner { grid-template-columns: 1fr; gap: 36px; }
+    .values__grid { grid-template-columns: 1fr; gap: 50px; }
+    .advantage__inner { grid-template-columns: 1fr; gap: 60px; padding: 80px 32px; }
+    .advantage__copy { max-width: none; }
+    .wheel-stage { height: 440px; }
+  }
+  @media (max-width: 768px) {
+    .nav { padding: 16px 22px; }
+    .nav.is-scrolled { padding: 12px 22px; }
+    .nav__links { gap: 16px; }
+    .nav__link, .nav__link--trigger { font-size: 10px; letter-spacing: 0.18em; }
+    .about-hero__label { left: 24px; bottom: 36px; }
+    .standard { padding: 80px 22px 60px; }
+    .values { padding: 16px 22px 90px; }
+    .advantage__inner { padding: 70px 22px; }
+    .wheel-stage { height: 400px; }
+    .wheel__item { width: 260px; }
+    .wheel__item.is-active .item-title { font-size: 19px; }
+    .wheel__item.is-active .item-body { font-size: 12px; }
+    .footer { padding: 36px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="index.html">new<span class="street">street</span></a>
+  <div class="nav__links">
+    <a class="nav__link" href="projects.html">Projects</a>
+    <div class="nav__item nav__item--dropdown">
+      <button class="nav__link--trigger is-active" type="button" aria-expanded="false">
+        Firm <span class="nav__caret">▾</span>
+      </button>
+      <div class="nav__dropdown">
+        <a class="nav__dropdown-link is-active" href="about.html">About the Firm</a>
+        <a class="nav__dropdown-link" href="team.html">Team</a>
+      </div>
+    </div>
+    <a class="nav__link" href="index.html#partners">Partners</a>
+    <a class="nav__link" href="index.html#press">Press</a>
+    <a class="nav__link" href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="about-hero">
+  <div class="about-hero__overlay"></div>
+  <div class="about-hero__label">
+    <div class="about-hero__eyebrow">Newstreet</div>
+    <h1 class="about-hero__title">About the Firm</h1>
+  </div>
+</section>
+
+<!-- ============================================================
+     STANDARD STATEMENT
+     ============================================================ -->
+<section class="standard">
+  <div class="standard__inner">
+    <h2 class="standard__title reveal">
+      A new standard of<br>development.
+    </h2>
+    <div class="standard__body standard__body--intro reveal delay-1">
+      <p>
+        Newstreet is a vertically integrated real estate developer with over 500+ units in our development pipeline. We serve institutional and individual investors by delivering strong assets that are built to hold and structured to sell.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     OUR VALUES
+     ============================================================ -->
+<section class="values">
+  <div class="values__eyebrow reveal">Our Values</div>
+  <div class="values__grid">
+    <div class="value-card reveal">
+      <div class="value-card__title">Conviction and<br>Focus</div>
+      <p class="value-card__body">
+        We’re selective about the opportunities we pursue. Every deal must meet a highly selective set of criteria designed to protect capital, reduce risk, and create long-term value for our investors.
+      </p>
+    </div>
+    <div class="value-card reveal delay-1">
+      <div class="value-card__title">Consistency and<br>Execution</div>
+      <p class="value-card__body">
+        We remain actively involved in our deals from early underwriting through project delivery to maintain alignment, efficiency, and attention to detail at every stage, ensuring excellence remains a consistent standard.
+      </p>
+    </div>
+    <div class="value-card reveal delay-2">
+      <div class="value-card__title">Institutional<br>Discipline</div>
+      <p class="value-card__body">
+        We approach every project with disciplined underwriting, thorough market validation, and a long-term mindset. Our process emphasizes careful planning, trusted industry insight, and a philosophy of building to hold while structuring to sell.      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     OUR ADVANTAGE — DARK CARD WITH HALF-WHEEL CAROUSEL
+     ============================================================ -->
+<section class="advantage" id="advantage">
+  <div class="advantage__inner">
+
+    <div class="advantage__copy">
+      <div class="advantage__eyebrow reveal">Our Advantage</div>
+      <h2 class="advantage__title reveal delay-1">
+        Proprietary<br>Deal Sourcing.
+      </h2>
+      <p class="advantage__body reveal delay-2">
+        Newstreet developed an AI-integrated platform and deep, human relationships that helps us source deals before anyone else on the market can.
+      </p>
+
+      <div class="advantage__controls reveal delay-3">
+        <button class="wheel-btn" id="wheelPrev" aria-label="Previous source">↑</button>
+        <button class="wheel-btn" id="wheelNext" aria-label="Next source">↓</button>
+        <div class="wheel-counter">
+          <span class="wheel-counter__current" id="wheelNum">01</span>
+          <span>/ 06</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- WHEEL -->
+    <div class="wheel-stage reveal delay-2">
+      <div class="wheel-arc"></div>
+      <div class="wheel-arc wheel-arc--inner"></div>
+
+      <div class="wheel" id="wheel">
+        <!-- 6 items. Each item's angle is set inline; JS updates the rotation. -->
+
+        <!-- 1. Distress Signals -->
+        <div class="wheel__item" data-index="0">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3 L22 21 L2 21 Z M12 10 L12 15 M12 18 L12 18.5"/></svg>
+              </span>
+              Distress Signals
+            </h3>
+            <p class="item-body">Real-time operator and sponsor distress signals — surfacing assets before they're forced to market.</p>
+          </div>
+        </div>
+
+        <!-- 2. Loan Maturity Tracker -->
+        <div class="wheel__item" data-index="1">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9 V13 L15 15 M9 3 H15 M12 5 V3"/></svg>
+              </span>
+              Loan Maturity Tracker
+            </h3>
+            <p class="item-body">Real-time alerts on maturing loans and refinancing pressure across target submarkets.</p>
+          </div>
+        </div>
+
+        <!-- 3. Non-Performing Loans -->
+        <div class="wheel__item" data-index="2">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 7 L9 13 L13 9 L21 17 M21 17 L21 11 M21 17 L15 17"/></svg>
+              </span>
+              Non-Performing Loans
+            </h3>
+            <p class="item-body">Continuous monitoring of NPL registries and special-servicer activity across target neighborhoods.</p>
+          </div>
+        </div>
+
+        <!-- 4. Owners & Operators -->
+        <div class="wheel__item" data-index="3">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M8 8 V5 H16 V8"/></svg>
+              </span>
+              Owners &amp; Operators
+            </h3>
+            <p class="item-body">Direct, long-standing relationships with site owners in target neighborhoods — most deals never reach the market.</p>
+          </div>
+        </div>
+
+        <!-- 5. Brokers & Agents -->
+        <div class="wheel__item" data-index="4">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 12 L12 4 L21 12 M5 11 V20 H19 V11 M9 20 V14 H15 V20"/></svg>
+              </span>
+              Brokers &amp; Agents
+            </h3>
+            <p class="item-body">Sales, leasing, and mortgage brokers who trust our ability to close on the right deal at the right terms.</p>
+          </div>
+        </div>
+
+        <!-- 6. Lenders & Servicers -->
+        <div class="wheel__item" data-index="5">
+          <div class="wheel__item-inner">
+            <div class="item-bar"></div>
+            <h3 class="item-title">
+              <span class="item-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M3 21 H21 M4 21 V11 M9 21 V11 M15 21 V11 M20 21 V11 M2 11 H22 L12 4 Z"/></svg>
+              </span>
+              Lenders &amp; Servicers
+            </h3>
+            <p class="item-body">Direct access to loan originators and special servicers before assets are marketed to the broader buyer pool.</p>
+          </div>
+        </div>
+
+      </div><!-- /.wheel -->
+    </div><!-- /.wheel-stage -->
+
+  </div><!-- /.advantage__inner -->
+</section>
+
+<!-- ============================================================
+     LOOKING AHEAD — same two-column layout as "A new standard"
+     ============================================================ -->
+<section class="standard standard--future" id="contact">
+  <div class="standard__inner">
+    <h2 class="standard__title reveal">
+      Looking Forward.<br>
+    </h2>
+    <div class="standard__body standard__body--intro reveal delay-1">
+      <p>
+        As we continue to grow, our focus remains the same: pursuing thoughtful developments rooted in strong fundamentals, disciplined execution, and long-term value creation.
+      </p>
+      <p>
+        We welcome conversations with investors, partners, brokers, and industry professionals who share our long-term perspective on development and the built environment.
+      </p>
+      <a class="standard__btn" href="mailto:info@newstreet.com">
+        Get in touch <span class="arrow">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div>© Newstreet 2026</div>
+  <div>Chicago, IL</div>
+</footer>
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script>
+  /* ---- Page ready ---- */
+  window.addEventListener('DOMContentLoaded', () => {
+    requestAnimationFrame(() => document.body.classList.add('is-ready'));
+  });
+
+  /* ---- Nav scroll ---- */
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 50);
+  }, { passive: true });
+
+  /* ---- Reveal on scroll ---- */
+  const revealIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('is-visible'); revealIO.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+  /* ============================================================
+     WHEEL — half-circle carousel
+     ============================================================
+     Layout math:
+       Each item has --angle. Position is computed by:
+         rotate(angle) translate(-radius, 0) rotate(-angle)
+       which places the item at angle ° around the wheel center
+       (top-right of the stage), keeping its text upright.
+
+       angle = 0   → west (closest to viewport, ACTIVE slot)
+       angle = 60  → upper-NW (preview above)
+       angle = -60 → lower-SW (preview below)
+       |angle| > 90 → hidden behind the wheel center on the right
+     ============================================================ */
+  (function initWheel() {
+    const wheel    = document.getElementById('wheel');
+    const items    = Array.from(wheel.querySelectorAll('.wheel__item'));
+    const prevBtn  = document.getElementById('wheelPrev');
+    const nextBtn  = document.getElementById('wheelNext');
+    const numEl    = document.getElementById('wheelNum');
+
+    const N        = items.length;
+    const STEP     = 360 / N;
+
+    // Use an unbounded virtual index so wrap-around (item 6 → 1) takes the
+    // shortest visual path instead of spinning the long way around.
+    let virtual = 0;
+
+    function layout() {
+      const activeIdx = ((virtual % N) + N) % N;
+      items.forEach((item, i) => {
+        let angle = ((i - virtual) * STEP) % 360;
+        if (angle > 180) angle -= 360;
+        if (angle < -180) angle += 360;
+
+        item.style.setProperty('--angle', angle + 'deg');
+
+        const absAngle = Math.abs(angle);
+        item.classList.remove('is-active', 'is-near');
+        if (absAngle < 1) item.classList.add('is-active');
+        else if (absAngle <= STEP + 1) item.classList.add('is-near');
+      });
+      numEl.textContent = String(activeIdx + 1).padStart(2, '0');
+    }
+
+    function go(delta) {
+      virtual += delta;
+      layout();
+    }
+
+    // Initial layout (sets active to item 0)
+    layout();
+
+    prevBtn.addEventListener('click', () => go(-1));
+    nextBtn.addEventListener('click', () => go(+1));
+
+    // Click on a near item to make it active
+    items.forEach((item) => {
+      item.addEventListener('click', () => {
+        if (item.classList.contains('is-active')) return;
+        const activeIdx = ((virtual % N) + N) % N;
+        const targetIdx = parseInt(item.dataset.index, 10);
+        // Shortest-direction step from active to target
+        const diff = ((targetIdx - activeIdx + N + N / 2) % N) - N / 2;
+        go(diff);
+      });
+    });
+
+    // Keyboard: ↑/↓ when wheel is in view
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp')   { e.preventDefault(); go(-1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); go(+1); }
+    });
+
+    // Trackpad/wheel scroll inside the stage advances the carousel
+    const stage = document.querySelector('.wheel-stage');
+    let wheelLock = false;
+    stage.addEventListener('wheel', (e) => {
+      if (Math.abs(e.deltaY) < 8) return;
+      if (wheelLock) return;
+      e.preventDefault();
+      wheelLock = true;
+      go(e.deltaY > 0 ? +1 : -1);
+      setTimeout(() => { wheelLock = false; }, 600);
+    }, { passive: false });
+  })();
+</script>
+
+</body>
+</html>
