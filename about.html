@@ -579,12 +579,40 @@
     .standard { padding: 80px 22px 60px; }
     .values { padding: 16px 22px 90px; }
     .advantage__inner { padding: 70px 22px; }
-    .wheel-stage { height: 400px; }
-    .wheel__item { width: 260px; }
-    .wheel__item.is-active .item-title { font-size: 19px; }
-    .wheel__item.is-active .item-body { font-size: 12px; }
     .footer { padding: 36px 22px; }
   }
+
+  @media (max-width: 640px) {
+    .advantage__inner { padding: 60px 16px 50px; }
+    .wheel-stage { height: 260px; }
+
+    /* Scale the arc guides down to match new radius */
+    .wheel-arc {
+      width: 260px; height: 260px;
+      right: -130px;
+    }
+    .wheel-arc--inner {
+      width: 200px; height: 200px;
+      right: -100px;
+    }
+
+    /* Reduce radius so items land inside the visible stage */
+    .wheel__item {
+      width: 190px;
+      --radius: 130px;
+    }
+
+    /* Tighten type */
+    .wheel__item .item-title        { font-size: 14px; gap: 8px; }
+    .wheel__item.is-active .item-title { font-size: 17px; margin-bottom: 8px; }
+    .wheel__item .item-icon         { width: 16px; height: 16px; }
+    .wheel__item.is-active .item-icon  { width: 22px; height: 22px; }
+    .wheel__item .item-body         { font-size: 12px; line-height: 1.5; max-width: 190px; }
+    .wheel__item.is-active .item-body  { font-size: 12.5px; max-width: 190px; }
+
+    /* Controls */
+    .wheel-btn { width: 30px; height: 30px; font-size: 12px; }
+    .wheel-counter { font-size: 10px; }
 
   /* MOBILE NAV */
   .nav__hamburger {
