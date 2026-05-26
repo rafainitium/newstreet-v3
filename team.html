@@ -541,6 +541,43 @@
     .nav__links { display: none !important; }
     .nav__hamburger { display: flex; }
   }
+
+  @media (max-width: 768px) {
+    /* Inline bio panel inserted after the clicked card on mobile */
+    .member-mobile-bio {
+      grid-column: 1 / -1;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s var(--ease-out);
+      border-top: 1px solid var(--line);
+    }
+    .member-mobile-bio.is-open { max-height: 600px; }
+    .member-mobile-bio__inner {
+      padding: 24px 0 20px;
+    }
+    .member-mobile-bio__name {
+      font-family: 'Murecho', sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.06em;
+      margin-bottom: 4px;
+    }
+    .member-mobile-bio__role {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.5;
+      margin-bottom: 18px;
+    }
+    .member-mobile-bio__text {
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -771,32 +808,55 @@
     },
   };
 
-  let openDrawer   = null; // currently open drawer element
-  let openCard     = null; // currently open card element
+  let openDrawer      = null;
+  let openCard        = null;
+  let openMobileBio   = null;
+  let openMobileBioCard = null;
 
   function closeDrawer() {
-    if (openDrawer) {
-      openDrawer.classList.remove('is-open');
-      openDrawer = null;
-    }
-    if (openCard) {
-      openCard.classList.remove('is-open');
-      openCard = null;
-    }
+    if (openDrawer) { openDrawer.classList.remove('is-open'); openDrawer = null; }
+    if (openCard)   { openCard.classList.remove('is-open');   openCard   = null; }
+  }
+
+  function closeMobileBio() {
+    if (openMobileBio)     { openMobileBio.remove();                       openMobileBio     = null; }
+    if (openMobileBioCard) { openMobileBioCard.classList.remove('is-open'); openMobileBioCard = null; }
   }
 
   function openMember(card, drawerId, memberId) {
-    const drawer = document.getElementById(drawerId);
-    const data   = bios[memberId];
+    const data = bios[memberId];
     if (!data) return;
 
-    // If clicking the already-open card → close
-    if (openCard === card) { closeDrawer(); return; }
+    // ── MOBILE: inline bio directly below the card ──────────────────
+    if (window.innerWidth <= 768) {
+      if (openMobileBioCard === card) { closeMobileBio(); return; }
+      closeMobileBio();
 
-    // Close previous
+      const bio = document.createElement('div');
+      bio.className = 'member-mobile-bio';
+      bio.innerHTML = `
+        <div class="member-mobile-bio__inner">
+          <div class="member-mobile-bio__name">${data.name}</div>
+          <div class="member-mobile-bio__role">${data.role}</div>
+          <div class="member-mobile-bio__text">
+            ${data.bio.map(p => `<p>${p}</p>`).join('')}
+          </div>
+        </div>
+      `;
+      card.insertAdjacentElement('afterend', bio);
+      card.classList.add('is-open');
+      requestAnimationFrame(() => bio.classList.add('is-open'));
+      openMobileBio     = bio;
+      openMobileBioCard = card;
+      return;
+    }
+
+    // ── DESKTOP: row drawer at bottom of group ───────────────────────
+    const drawer = document.getElementById(drawerId);
+    if (!drawer) return;
+    if (openCard === card) { closeDrawer(); return; }
     closeDrawer();
 
-    // Populate drawer
     drawer.querySelector('.member-drawer__inner').innerHTML = `
       <div class="member-drawer__name-block">
         <div class="member-drawer__name">${data.name}</div>
@@ -806,17 +866,11 @@
         ${data.bio.map(p => `<p>${p}</p>`).join('')}
       </div>
     `;
-
-    // Open
     drawer.classList.add('is-open');
     card.classList.add('is-open');
     openDrawer = drawer;
     openCard   = card;
-
-    // Scroll card into view smoothly
-    setTimeout(() => {
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
+    setTimeout(() => { card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
   }
 
   document.querySelectorAll('.member-card').forEach(card => {
