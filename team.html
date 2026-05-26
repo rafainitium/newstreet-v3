@@ -468,6 +468,79 @@
   @media (max-width: 500px) {
     .member-row { grid-template-columns: 1fr; }
   }
+
+  /* MOBILE NAV */
+  .nav__hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1002;
+    padding: 6px;
+    position: relative;
+  }
+  .nav__hamburger span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: #fff;
+    transition: transform 0.35s var(--ease), opacity 0.2s, width 0.3s var(--ease);
+    transform-origin: center;
+  }
+  body.nav-open .nav__hamburger span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+  body.nav-open .nav__hamburger span:nth-child(2) { opacity: 0; width: 0; }
+  body.nav-open .nav__hamburger span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+  .nav__mobile {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 14, 14, 0.97);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 36px 60px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-10px);
+    transition: opacity 0.38s var(--ease), transform 0.38s var(--ease);
+  }
+  .nav__mobile.is-open { opacity: 1; pointer-events: all; transform: translateY(0); }
+  .nav__mobile-link {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(34px, 10vw, 54px);
+    font-weight: 300;
+    letter-spacing: -0.06em;
+    color: #fff;
+    line-height: 1.15;
+    display: block;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    transition: opacity 0.25s;
+  }
+  .nav__mobile-link:first-child { border-top: 1px solid rgba(255,255,255,0.08); }
+  .nav__mobile-sub {
+    font-family: 'Murecho', sans-serif;
+    font-size: clamp(22px, 7vw, 38px);
+    font-weight: 300;
+    letter-spacing: -0.05em;
+    color: rgba(255,255,255,0.4);
+    display: block;
+    padding: 10px 0 10px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: opacity 0.25s;
+  }
+  @media (max-width: 768px) {
+    .nav__links { display: none !important; }
+    .nav__hamburger { display: flex; }
+  }
 </style>
 </head>
 <body>
@@ -491,6 +564,17 @@
     <a class="nav__link" href="index.html#partners">Partners</a>
     <a class="nav__link" href="index.html#press">Press</a>
     <a class="nav__link" href="index.html#contact">Contact</a>
+  </div>
+  <button class="nav__hamburger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav__mobile">
+    <a class="nav__mobile-link" href="projects.html">Projects</a>
+    <a class="nav__mobile-sub" href="about.html">About the Firm</a>
+    <a class="nav__mobile-sub" href="team.html">Team</a>
+    <a class="nav__mobile-link" href="index.html#partners">Partners</a>
+    <a class="nav__mobile-link" href="index.html#press">Press</a>
+    <a class="nav__mobile-link" href="index.html#contact">Contact</a>
   </div>
 </nav>
 
@@ -750,6 +834,23 @@
       openMember(card, drawerId, memberId);
     });
   });
+
+  // Mobile nav
+  (function() {
+    const hamburger = document.querySelector('.nav__hamburger');
+    const mobileMenu = document.querySelector('.nav__mobile');
+    if (!hamburger || !mobileMenu) return;
+    hamburger.addEventListener('click', function() {
+      const isOpen = document.body.classList.toggle('nav-open');
+      mobileMenu.classList.toggle('is-open', isOpen);
+    });
+    mobileMenu.querySelectorAll('a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        document.body.classList.remove('nav-open');
+        mobileMenu.classList.remove('is-open');
+      });
+    });
+  })();
 </script>
 
 </body>
