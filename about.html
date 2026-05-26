@@ -627,6 +627,14 @@
       color: rgba(255,255,255,0.58);
     }
 
+    /* Show only Distress Signals (0), Non-Performing Loans (2), Brokers & Agents (4) */
+    .wheel__item[data-index="1"],
+    .wheel__item[data-index="3"],
+    .wheel__item[data-index="5"] { display: none; }
+
+    /* Remove top border gap left by hidden first sibling */
+    .wheel__item[data-index="0"] .wheel__item-inner { border-top: 1px solid rgba(255,255,255,0.09); }
+
   /* MOBILE NAV */
   .nav__hamburger {
     display: none;

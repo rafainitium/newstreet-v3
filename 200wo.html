@@ -530,6 +530,12 @@
     .footer { padding: 36px 22px; }
   }
 
+  @media (max-width: 640px) {
+    /* Show project details before project team on mobile */
+    .numbers-col { order: 1; }
+    .team-col    { order: 2; }
+  }
+
   /* MOBILE NAV */
   .nav__hamburger {
     display: none;
